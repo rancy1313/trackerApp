@@ -109,7 +109,7 @@ def sign_up():
             for file in request.files.getlist('file'):
                 if file.filename == "":
                     # if user didn't submit a profile picture, then a temporary fake picture is used
-                    filename = 'tmp_picture.png'
+                    filename = 'tmp_picture.jpg'
                 else:
                     # the file name will be called after the user's email because every user has a unique email
                     filename = email + '.jpg'

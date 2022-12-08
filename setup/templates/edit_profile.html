@@ -5,6 +5,7 @@
 <form action="{{ url_for('features.edit_profile', user_id=user_being_edited.id) }}" method="POST" enctype="multipart/form-data">
     <div class="text1">
         <h1>Edit Profile Info</h1>
+        <h4><b>Username: {{ user.username }}</b></h4>
         <label for="first_name">First Name: {{ user_being_edited.first_name }}</label>
         <textarea   type="first_name"
                     class="form-control"

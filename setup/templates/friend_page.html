@@ -13,6 +13,11 @@
             <p>Middle Name: {{ friend.middle_name }}</p>
         {% endif %}
         <p>Last Name: {{ friend.last_name }}</p>
+        {% if friend.username is none %}
+            <p>Friend Creation</p>
+        {% else %}
+            <p>username: {{ friend.username }}</p>
+        {% endif %}
         <p>Gender: {{ friend.gender }}</p>
         <p>Birthday: {{ friend.birthday }} </p>
         {% if friend in user.friends_list %}

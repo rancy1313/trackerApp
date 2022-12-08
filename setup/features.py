@@ -39,7 +39,7 @@ def user_home():
     return render_template("home.html", user=current_user, all_requests=all_requests, list_of_user_friends=list_of_user_friends)
 
 
-@features.route('/search-friend', methods=['GET', 'POST'])
+"""@features.route('/search-friend', methods=['GET', 'POST'])
 @login_required
 def search_friend():
     # search is done by email because all emails are unique
@@ -62,6 +62,32 @@ def search_friend():
             flash('Friend found', category="success")
         else:
             flash('Error. Friend not found', category="error")
+    return render_template("search_friend.html", user=current_user, friend=friend)"""
+
+
+@features.route('/search-friends', methods=['GET', 'POST'])
+@login_required
+def search_friends():
+    # search is done by email because all emails are unique
+    # could replace search by email with a username variable or by first name
+    # retrieve email from form
+    username = request.form.get('username')
+    # search db for user with that email
+    friend = User.query.filter_by(username=username).first()
+    # fixes bug were wrong friend is displaying. It is just getting a random friend so set friend
+    # to None if email is none
+    if username is None:
+        friend = None
+    if request.method == "POST":
+        # stop people from adding themselves
+        if current_user.username == username:
+            flash('Not allowed to search yourself', category="error")
+            # set friend to None so None type is passed to search friend page
+            friend = None
+        elif friend:
+            flash('Friend found', category="success")
+        else:
+            flash('Error. Friend not found', category="error")
     return render_template("search_friend.html", user=current_user, friend=friend)
 
 
@@ -74,18 +100,20 @@ def send_friend_request(user_id):
     for tmp_friend in current_user.friends:
         if tmp_friend.friend_id == friend.id:
             flash('Error. Already friends.', category="error")
-            return redirect(url_for('features.search_friend'))
+            return redirect(url_for('features.search_friends'))
 
     # only one friend request to a person can be made until.
     # The person has to wait until the last request was cancelled
     for tmp_request in current_user.friend_requests:
         if tmp_request.request_to_user_id == user_id:
             flash('Error. There is already a pending friend request to this person.', category="error")
-            return redirect(url_for('features.search_friend'))
+            return redirect(url_for('features.search_friends'))
 
     if request.method == 'POST':
-        filename_receiver = friend.email + '.jpg'
-        filename_sender = current_user.email + '.jpg'
+        # save the profile picture of the receiver so that the sender can see who they see the request to
+        filename_receiver = friend.profile_picture
+        # save the profile picture of the sender so the receiver can see who sent the request
+        filename_sender = current_user.profile_picture
         # if not already friends then send request
         tmp_receiver_name = friend.first_name + " " + friend.middle_name + " " + friend.last_name
         tmp_sender_name = current_user.first_name + " " + current_user.middle_name + " " + current_user.last_name
@@ -95,7 +123,7 @@ def send_friend_request(user_id):
         db.session.add(tmp_request)
         db.session.commit()
         flash('Request Sent.', category="success")
-        return redirect(url_for('features.search_friend'))
+        return redirect(url_for('features.search_friends'))
 
 @features.route('/user-home/accept-friend-request/<int:request_id>', methods=['GET', 'POST'])
 @login_required
@@ -194,6 +222,12 @@ def remove_friend(friend_id):
         flash('Friend removed', category="success")
         return redirect(url_for('features.user_home'))
         #return redirect(url_for('features.view_friend_profile'), friend_id=friend_id)
+    elif friend.username is None:
+        current_user.friends_list.remove(friend)
+        db.session.delete(friend)
+        db.session.commit()
+        flash('Friend Creation deleted.', category="success")
+        return redirect(url_for('features.user_home'))
     else:
         flash('Error.', category="error")
         return redirect(url_for('features.user_home'))
@@ -506,19 +540,24 @@ def create_friend():
         friend.last_name = last_name
         friend.gender = gender
         friend.birthday = birthday
-        friend.profile_picture = str(tmp_user.id + 1) + '.jpg'
+        tmp_file = request.files.getlist('file')
+        if tmp_file[0].filename == '':
+            friend.profile_picture = 'tmp_picture.jpg'
+        else:
+            friend.profile_picture = str(tmp_user.id + 1) + '.jpg'
         db.session.add(friend)
         # get current user by query filter to avoid technical errors
         tmp_current_user = User.query.filter_by(id=current_user.id).first()
         tmp_current_user.friends_list.append(friend)
         db.session.commit()
-        # getting submitted image to store in image folder
-        for file in request.files.getlist('file'):
-            # the file name will be called after the friend object id
-            filename = str(friend.id) + '.jpg'
-            destination = "/".join([target, filename])
-            file.save(destination)
-            flash('Friend created.', category="success")
+        if tmp_file[0].filename != '':
+            # getting submitted image to store in image folder
+            for file in request.files.getlist('file'):
+                # the file name will be called after the friend object id
+                filename = str(friend.id) + '.jpg'
+                destination = "/".join([target, filename])
+                file.save(destination)
+        flash('Friend created.', category="success")
     return render_template('create_friend.html', user=current_user)
 
 @features.route('/filter-posts', methods=['GET', 'POST'])
