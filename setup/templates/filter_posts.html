@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title%}Filter Post{% endblock%}
+{% block content %}
+{{j|safe}}
+<h1 align="center">Filter Posts</h1>
+<form method="POST">
+    <label for="filter_friends">Search Tagged Friend:</label>
+    <select class="selectpicker" id="filter_friends" name="filter_friends" data-live-search="true" multiple>
+        {% for friend in user.friends_list %}
+            <option value="{{ friend.id }}">{{ friend.first_name }}
+                    {% if friend.middle_name %}
+                        {{ friend.middle_name }}
+                    {% endif %}
+                    {{ friend.last_name }}
+            </option>
+        {% endfor %}
+    </select>
+    <br />
+    <br />
+    <label for="key_word">Key word Search:</label>
+    <input class="form-control" id="key_word" name="key_word" placeholder="SEARCH BY KEY WORD">
+    <br />
+    <br />
+    <button class="btn-search" type="submit">Search</button>
+</form>
+<br />
+{% if filtered_posts|length != 0 %}
+    <h2 align="center">Filtered Posts</h2>
+    <b class="text1">Filtered friends:
+        {% for friend in filtered_users %}
+            <i><!-- formatting to let user know which friends they have filtered -->
+                {% set tmp_friend_name = friend.first_name %}
+                   {% if friend.middle_name %}
+                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.middle_name %}
+                    {% endif %}
+                    {% if loop.index == filtered_users|length %}
+                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + '.' %}
+                    {% else %}
+                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + ',' %}
+                    {% endif %}
+                    {{ tmp_friend_name }}
+            </i>
+        {% endfor %}
+    </b>
+{% endif %}
+{% for post in filtered_posts %}
+    <div class="groove" style="background-color: {{ post.color }}">
+        <div class="row">
+            <div class="column">
+                <!-- this div is for formatting the dots next to the image -->
+                <div style="float: left;">
+                    <!-- this will separate the dots next to each post's images -->
+                    {% set tmp_dot = 'dot ' + (post.id|string) %}
+                    {% for image in post.post_images %}
+                        <div style="text-align:center">
+                            <span class="{{ tmp_dot }}" onclick="currentSlide({{ loop.index }}, {{ post.id|safe }})"></span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- this will separate the posts images for the javascript functions -->
+                {% set tmp_class = 'post_images' + (post.id|string) %}
+                <div class="slideshow-container" style="float: left;">
+                    <!-- this is code for arrows that will go to the next post image. Not working properly -->
+                    <!--<a class="next" onclick="plusSlides({{ loop.index|safe }}, 1, {{ post.id|safe }})">❯</a>-->
+                    {% if (post.post_images|length) != 0 %}
+                        <!-- this div is here so that if no images in the post then image border is not displayed -->
+                        <div class="image">
+                            {% for image in post.post_images %}
+                                <div class="{{ tmp_class }}">
+                                    <div class="numbertext">{{ loop.index }} / {{ post.post_images|length }}</div>
+                                        <img class="img-responsive" src="{{ url_for('features.send_image', filename=image) }}" style="width: 200px">
+                                    </div>
+                                {% endfor %}
+                        </div>
+                    {% endif %}
+                    <!--<a class="prev" onclick="plusSlides({{ loop.index|safe }}, -1, {{ post.id|safe }})">❮</a>-->
+                </div>
+            </div>
+            <div class="column">
+                <!-- this div is for formatting the post's text -->
+                <div class="text3">
+                    <b>{{ post.title }}</b>
+                    <p>{{ post.text|safe }}</p>
+                    <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
+                    {% if post.friends_tagged|length != 0 %}
+                        <p class="tag_friend_search">Tagged Friends:
+                            <!-- loop through the tagged friends of the post to display them -->
+                            {% for tagged_friend in post.friends_tagged %}
+                            <!-- the if statement checks if we are on the last iteration of the loop so a period can be printed -->
+                            {% set tmp_friend_name = tagged_friend.first_name %}
+                            {% if tagged_friend.middle_name %}
+                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.middle_name %}
+                            {% endif %}
+                            {% if loop.index == post.friends_tagged|length %}
+                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + '.' %}
+                            {% else %}
+                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + ',' %}
+                            {% endif %}
+                                {{ tmp_friend_name }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
+                        <button style="float: left;" class="btn-search" type="submit">Edit</button>
+                    </form>
+                    <p style="float: left; padding: 10px;"></p>
+                    <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
+                        <button style="float: left;" class="btn-search" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="text1">
+            <p align="right">Who can see post: <i>{{ post.post_privacy }}</i></p>
+            <!-- will cut off the seconds -->
+            {% set tmp_time = (post.date|string)[:16] %}
+            <p align="right">{{ tmp_time }}</p>
+        </div>
+    </div>
+    <br />
+{% endfor %}
+
+{% set lst = [] %}
+{% for post in filtered_posts %}
+    <!-- I cannot include any posts with zero images because that will break the js function and any posts with images
+        after a plain text post will not have their images display properly. We exclude the text only posts id from
+        the lst passed to the js function -->
+    {% if (post.post_images|length) != 0 %}
+        <p hidden>{{ lst.append(post.id) }}</p>
+    {% endif %}
+{% endfor %}
+<body onload="loadSlides({{ lst|safe }})"></body>
+{% endblock %}

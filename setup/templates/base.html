@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title%}Home{% endblock %}</title>
+</head>
+<body style="background-color: #EDFFFB;">
+    <!-- Navbar is shown on every page-->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="collapse navbar-collapse" id="navbar">
+            <!-- site fake logo created by me in ms paint -->
+            <a class="nav-item nav-link" href="#" align="left">
+                <img style="padding-left: 20px;" src="{{ url_for('features.send_image', filename='fake_logo3.png') }}" alt="..." height="120">
+            </a>
+            <div class="navbar-nav">
+                <!-- If user logged in then-->
+                {% if user.is_authenticated %}
+                    <!-- the empty a tags are to space out the actual links. An empty a tag worked better than a br tag -->
+                    <a class="nav-item nav-link" id="home" href="/user-home">Home</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="create_post" href="/create-post">Post</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="search" href="/search-friend">Search Friend</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="create_friend" href="/create-friend">Create Friend</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="edit_profile" href="{{ url_for('features.edit_profile', user_id=user.id) }}">Edit Profile</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="filter_posts" href="{{ url_for('features.filter_posts', user_id=user.id) }}">Filter Posts</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+                {% else %}
+                <!-- Not logged in nav links-->
+                    <a class="nav-item nav-link" id="login" href="/login">Login</a>
+                    <a class="nav-item nav-link"></a>
+                    <a class="nav-item nav-link" id="signup" href="/sign-up">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <!-- code to flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <br />
+    <div class="container">
+    {% block content %}
+    {% endblock %}
+    </div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='index.js') }}"
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.js"></script>
+</body>
+</html>

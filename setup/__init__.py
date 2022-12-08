@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
+
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
@@ -30,10 +31,10 @@ def create_app():
 
     # where does flask redirect us if user is not logged and login is not required
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'authorization.login'
     login_manager.init_app(app)
 
-    # load user
+    # load user(TRY REMOVING THIS PART TO SEE IF IT GETS RID OF BUG WHEN YOU RESTART SESSION AND IT SHOWS BLANK SCREEN)
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))

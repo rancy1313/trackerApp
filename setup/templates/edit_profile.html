@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title%}Edit profile page{% endblock%}
+
+{% block content %}
+<form action="{{ url_for('features.edit_profile', user_id=user_being_edited.id) }}" method="POST" enctype="multipart/form-data">
+    <div class="text1">
+        <h1>Edit Profile Info</h1>
+        <label for="first_name">First Name: {{ user_being_edited.first_name }}</label>
+        <textarea   type="first_name"
+                    class="form-control"
+                    id="first_name"
+                    name="first_name">{{ user_being_edited.first_name }}</textarea>
+        <label for="middle_name">Middle Name: {{ user_being_edited.middle_name }}</label>
+        <textarea   type="middle_name"
+                    class="form-control"
+                    id="middle_name"
+                    name="middle_name">{{ user_being_edited.middle_name }}</textarea>
+        <label for="last_name">Last Name: {{ user_being_edited.last_name }}</label>
+        <textarea   type="last_name"
+                    class="form-control"
+                    id="last_name"
+                    name="last_name">{{ user_being_edited.last_name }}</textarea>
+        <br />
+        <label for="birthday">Birthday: {{ user_being_edited.birthday }}</label>
+        <input type="date" id="birthday" name="birthday" min="1930-01-02"><br><br>
+        <label for="gender">Gender: {{ user_being_edited.gender }}</label>
+        <textarea   type="gender"
+                    class="form-control"
+                    id="gender"
+                    name="gender">{{ user_being_edited.gender }}</textarea>
+        <br />
+        <b>Previous Profile Picture:</b>
+        <img class="img-responsive" src="{{ url_for('features.send_image', filename=user_being_edited.profile_picture) }}" width="150" >
+        <br />
+        <br />
+        <lable for="file"><b>New Profile Picture: </b></lable>
+        <input type="file" name="file" accept="image/*"/>
+        <br />
+        <br />
+        <button type="submit" class="btn-search">Submit</button>
+    </div>
+</form>
+<br />
+<br />
+<br />
+{% endblock %}

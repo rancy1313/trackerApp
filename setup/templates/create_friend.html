@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title%}Create Friend{% endblock%}
+{% block content %}
+<h1 align="center">Create Friend</h1>
+<form action="{{ url_for('features.create_friend') }}" enctype="multipart/form-data" method="POST">
+    <label for="first_name">First Name: </label>
+    <input id="first_name"
+           class="form-control"
+           name="first_name"
+           placeholder="ENTER FIRST NAME">
+    <label for="middle_name">Middle Name: </label>
+    <input id="middle_name"
+           class="form-control"
+           name="middle_name"
+           placeholder="ENTER MIDDLE NAME">
+    <label for="last_name">Last Name: </label>
+    <input id="last_name"
+           class="form-control"
+           name="last_name"
+           placeholder="ENTER LAST NAME">
+    <label for="gender">Gender: </label>
+    <input id="gender"
+           class="form-control"
+           name="gender"
+           placeholder="ENTER LAST GENDER">
+    <br />
+    <label for="birthday">Enter birthday</label>
+    <input type="date"
+           id="birthday"
+           name="birthday">
+    <br />
+    <br />
+    <label for="file">Profile Picture: </label>
+    <input type="file"
+           id="file"
+           name="file"
+           accept="image/*">
+    <br />
+    <br />
+    <button type="submit" class="btn-search">Create Friend</button>
+</form>
+{% endblock %}

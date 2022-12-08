@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title%}Sign Up{% endblock%}
+
+{% block content %}
+<!-- users can sign up for an account and after are directed to the login page. This can be changed to direct them to
+the user's home page -->
+<!-- form to pass variables to sign_up() there are some p tags to describe email and password specifications -->
+<form method="POST" enctype="multipart/form-data">
+    <h3 align="center">Sign Up</h3>
+    <div class="form-group">
+        <label for="first_name">First Name:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="first_name"
+                name="first_name"
+                placeholder="ENTER FIRST NAME"
+                onkeyup="lengthCheck(document.getElementById(id).value, id)"
+        />
+    </div>
+    <p id="oop"></p>
+    <div class="form-group">
+        <label for="middle_name">Middle Name:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="middle_name"
+                name="middle_name"
+                placeholder="ENTER MIDDLE NAME(S)"
+        />
+    </div>
+    <div class="form-group">
+        <label for="last_name">Last Name:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="last_name"
+                name="last_name"
+                placeholder="ENTER LAST NAME"
+                onkeyup="lengthCheck(document.getElementById(id).value, id)"
+        />
+    </div>
+    <div class="form-group">
+        <label for="birthday">Birthday:</label>
+        <input type="date" id="birthday" name="birthday" min="1930-01-02"><br><br>
+    </div>
+    <div class="form-group">
+        <label for="bio">Bio:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="bio"
+                name="bio"
+                placeholder="ENTER BIO"
+        />
+    </div>
+    <div class="form-group">
+        <label for="gender">Gender:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="gender"
+                name="gender"
+                placeholder="ENTER GENDER"
+                onkeyup="lengthCheck(document.getElementById(id).value, id)"
+        />
+    </div>
+    <!-- pass list of usernames to make sure no chars special chars are being used and to make sure username does not
+        already exist -->
+    {% set tmp_list = [] %}
+    {% for item in list_of_usernames %}
+        <p hidden>{{ tmp_list.append(item) }}</p>
+    {% endfor %}
+    <div class="form-group">
+        <label for="username">User Name:</label>
+        <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                placeholder="ENTER USER NAME"
+                onkeyup="usernameCheck(document.getElementById(id).value, id, {{ tmp_list|safe }})"
+        />
+    </div>
+    <p>NO SPECIAL CHARS ALLOWED EXCEPT(@ AND .)</p>
+    <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="ENTER EMAIL"
+        />
+    </div>
+    <p>PASSWORD MUST BE AT LEAST 7 CHARACTERS</p>
+    <div class="form-group">
+        <label for="password1">Password:</label>
+        <input
+                type="password"
+                class="form-control"
+                id="password1"
+                name="password1"
+                placeholder="ENTER PASSWORD"
+        />
+    </div>
+    <div class="form-group">
+        <label for="password2">Password (Confirm):</label>
+        <input
+                type="password"
+                class="form-control"
+                id="password2"
+                name="password2"
+                placeholder="CONFIRM PASSWORD"
+        />
+    </div>
+    <lable for="file"><b>Profile Picture:</b></lable>
+    <input type="file" name="file" accept="image/*"/>
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<br />
+<br/>
+
+{% endblock %}
