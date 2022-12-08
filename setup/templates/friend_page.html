@@ -93,7 +93,7 @@
 <button type="button" class="collapsible">Posts</button>
 <div action="{{ url_for('features.filter_posts', user_id=user.id) }}" class="content">
     <br />
-    <a style="width: 25px;" class="btn-search" id="filter_posts" href="{{ url_for('features.filter_posts', user_id=user.id) }}">Filter Posts</a>
+    <a style="width: 25px;" class="btn-search" id="filter_posts" href="{{ url_for('features.filter_posts', user_id=friend.id) }}">Filter Posts</a>
     <h2 align="center">Posts</h2>
     {% for post in friend.posts %}
         <!-- We only want posts that are set to public(friends only/everyone) and (post.post_privacy != "Only You") makes

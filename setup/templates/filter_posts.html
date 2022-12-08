@@ -2,11 +2,11 @@
 {% block title%}Filter Post{% endblock%}
 {% block content %}
 
-<h1 align="center">Filter Posts</h1>
+<h1 align="center">Filter Posts For: {{ tmp_user.first_name }} {{ tmp_user.middle_name }} {{ tmp_user.last_name }}</h1>
 <form method="POST">
     <label for="filter_friends">Search Tagged Friend:</label>
     <select class="selectpicker" id="filter_friends" name="filter_friends" data-live-search="true" multiple>
-        {% for friend in user.friends_list %}
+        {% for friend in tmp_user.friends_list %}
             <option value="{{ friend.id }}">{{ friend.first_name }}
                     {% if friend.middle_name %}
                         {{ friend.middle_name }}
@@ -20,9 +20,13 @@
     <!-- get all the types of post privacy options that exist through all the user's posts -->
     <!-- if user only has posts that are 'friends only' and 'private' then only show those two options-->
     {% set tmp_list = [] %}
-    {% for post in user.posts %}
-        <!-- add all the post privacy options -->
-        <p hidden>{{ tmp_list.append(post.post_privacy) }}</p>
+    {% for post in tmp_user.posts %}
+    <!-- if user is not the tmp_user then we should not be able to see tmp_user's private posts because those do not
+         belong to the user. Thus, we only add 'Only You' posts if user is the tmp_user, else we add any other post -->
+        {% if (tmp_user.id == user.id) and ('Only You' == post.post_privacy) or ('Only You' != post.post_privacy) %}
+            <!-- add all the post privacy options -->
+            <p hidden>{{ tmp_list.append(post.post_privacy) }}</p>
+        {% endif %}
     {% endfor %}
     <!-- make the list unique, so that options hsow up once -->
     {% set tmp_list = tmp_list|unique %}
@@ -63,7 +67,9 @@
         {% endfor %}
     </b>
 {% endif %}
+
 {% for post in filtered_posts %}
+    {% if (post.post_privacy == 'Only You') and (tmp_user == user) or (post.post_privacy != 'Only You') %}
     <div class="groove" style="background-color: {{ post.color }}">
         <div class="row">
             <div class="column">
@@ -120,13 +126,17 @@
                             {% endfor %}
                         </p>
                     {% endif %}
-                    <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
-                        <button style="float: left;" class="btn-search" type="submit">Edit</button>
-                    </form>
-                    <p style="float: left; padding: 10px;"></p>
-                    <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
-                        <button style="float: left;" class="btn-search" type="submit">Delete</button>
-                    </form>
+                    <!-- only show these buttons if the tmp_user is the user because the user is not allowed to edit
+                        posts that d not belong to thm -->
+                    {% if tmp_user == user %}
+                        <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
+                            <button style="float: left;" class="btn-search" type="submit">Edit</button>
+                        </form>
+                        <p style="float: left; padding: 10px;"></p>
+                        <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
+                            <button style="float: left;" class="btn-search" type="submit">Delete</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -138,6 +148,7 @@
         </div>
     </div>
     <br />
+    {% endif %}
 {% endfor %}
 
 {% set lst = [] %}

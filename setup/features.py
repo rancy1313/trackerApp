@@ -468,10 +468,13 @@ def create_friend():
 # the user can filter all their posts by the tagged friends, key word in the post's text, and by the post's privacy type
 # When a keyword is used to filter, the filtered posts will bold that word everytime it shows up in its text(easier for
 # the user to find the keyword in the text)
+# You can now sort through friends posts too, but the user cannot edit friend's posts or filter through friend's private
+# posts.
 @features.route('/filter-posts/<int:user_id>', methods=['GET', 'POST'])
 def filter_posts(user_id):
     filtered_posts = []
     filtered_users = []
+    tmp_current_user = User.query.filter_by(id=user_id).first()
     if request.method == 'POST':
         # get the friends from user if user is filtering posts by friends
         filter_friends = request.form.getlist('filter_friends')
@@ -486,7 +489,7 @@ def filter_posts(user_id):
         # with the keyword then an error message is posted alerting the user that no posts with the keyword were found
         was_key_word_found = False
         # loop through all of user's posts
-        for post in current_user.posts:
+        for post in tmp_current_user.posts:
             # loop through all of user's friends to check if they are in the tagged friend of the post
             for user in filter_friends:
                 tmp_user = User.query.filter_by(id=user).first()
@@ -514,7 +517,6 @@ def filter_posts(user_id):
                 post.text = post.text.replace(key_word, '<b>' + key_word + '</b>')
                 # set was_key_word_found to let the user know that there is at least one post with the keyword
                 was_key_word_found = True
-            print(post_status)
             if (post_status is not None) and (post not in filtered_posts):
                 if post.post_privacy in post_status:
                     filtered_posts.append(post)
@@ -541,6 +543,5 @@ def filter_posts(user_id):
         # if post were found
         if len(filtered_posts) != 0:
             flash('Post(s) found.')
-    tmp_user = User.query.filter_by(id=user_id).first()
-    return render_template('filter_posts.html', user=current_user, tmp_user=tmp_user, filtered_posts=filtered_posts,
-                           filtered_users=filtered_users)
+    return render_template('filter_posts.html', user=current_user, tmp_user=tmp_current_user,
+                           filtered_posts=filtered_posts, filtered_users=filtered_users)
