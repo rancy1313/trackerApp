@@ -1,15 +1,7 @@
 {% extends "base.html" %}
-{% block title%}Login{% endblock%}
+{% block title%}Search Friend{% endblock%}
 {% block content %}
 
-<!--<form class="text1" method="POST">
-    <p>Enter your Friend's email</p>
-    <input  type="text"
-            name="email"
-            id="myInput"
-            placeholder="Search Friend">
-    <button type="submit" class="btn-search">Search</button>
-</form>-->
 <form class="text1" method="POST">
     <p>Enter your Friend's username</p>
     <input  type="text"
@@ -38,9 +30,16 @@
                     <p>Username: {{ friend.username }}</p>
                     <p>Gender: {{ friend.gender }}</p>
                     <p>Birthday: {{ friend.birthday }} </p>
+                    <div class="column">
                     <form action="{{ url_for('features.send_friend_request', user_id=friend.id) }}" method="POST">
                         <button type="submit" class="btn-search">Request Friendship</button>
                     </form>
+                    </div>
+                    <div class="column">
+                    <form action="{{ url_for('features.view_friend_profile', friend_id=friend.id) }}" method="POST">
+                        <button type="submit" class="btn-search">View Friend Profile</button>
+                    </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -4,6 +4,8 @@ from sqlalchemy.sql import func
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import PickleType
 
+
+# post class is the blueprints for all posts
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
@@ -23,9 +25,10 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # tag friends in photos to sort photos
     friends_tagged = db.Column(MutableList.as_mutable(PickleType), default=[])
-    friends = db.relationship('Friend')
 
-class Friend_request(db.Model):
+
+# friend request class is used to create objects of friend requests
+class FriendRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     # status of the friend request
@@ -44,29 +47,9 @@ class Friend_request(db.Model):
     request_from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
-class Friend(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    # does this friend have account
-    account_status = db.Column(db.String(10))
-    # user basic information
-    ''' so if the friend does not have an account then you can create an instance of them. You will be able to manually
-        enter information about that friend to keep track of them. '''
-    first_name = db.Column(db.String(20))
-    middle_name = db.Column(db.String(20))
-    last_name = db.Column(db.String(20))
-    gender = db.Column(db.String(20))
-    birthday = db.Column(db.String(20))
-    age = db.Column(db.Integer)
-    # picture of friend
-    profile_picture = db.Column(db.String(50))
-    # this is the friends id
-    friend_id = db.Column(db.Integer)
-    # to link to the users id
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    # to tag people in posts
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-
-
+# the user class is used to model all users including all the friend creations. However, friend creations do not have
+# usernames and emails because they are not real users. They are a feature for users to sort their posts by tagging
+# their friends/pets/literally any object they want to create
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     # account info for login
@@ -85,9 +68,7 @@ class User(db.Model, UserMixin):
     age = db.Column(db.Integer)
     # user can make posts
     posts = db.relationship('Post')
-    # list of user's friends
-    friends = db.relationship('Friend')
     # friends list of user's friends
     friends_list = db.Column(MutableList.as_mutable(PickleType), default=[])
     # list of user's friend requests
-    friend_requests = db.relationship('Friend_request')
+    friend_requests = db.relationship('FriendRequest')

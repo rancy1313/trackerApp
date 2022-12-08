@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title%}Filter Post{% endblock%}
 {% block content %}
-{{j|safe}}
+
 <h1 align="center">Filter Posts</h1>
 <form method="POST">
     <label for="filter_friends">Search Tagged Friend:</label>
@@ -17,6 +17,26 @@
     </select>
     <br />
     <br />
+    <!-- get all the types of post privacy options that exist through all the user's posts -->
+    <!-- if user only has posts that are 'friends only' and 'private' then only show those two options-->
+    {% set tmp_list = [] %}
+    {% for post in user.posts %}
+        <!-- add all the post privacy options -->
+        <p hidden>{{ tmp_list.append(post.post_privacy) }}</p>
+    {% endfor %}
+    <!-- make the list unique, so that options hsow up once -->
+    {% set tmp_list = tmp_list|unique %}
+    <label for="post_status">Post Status Search:</label>
+    <select class="selectpicker" id="post_status" name="post_status" multiple>
+        <!-- loop through the available options -->
+        {% for post_privacy in tmp_list %}
+            <option value="{{ post_privacy }}">
+                    {{ post_privacy }}
+            </option>
+        {% endfor %}
+    </select>
+    <br />
+    <br />
     <label for="key_word">Key word Search:</label>
     <input class="form-control" id="key_word" name="key_word" placeholder="SEARCH BY KEY WORD">
     <br />
@@ -24,7 +44,7 @@
     <button class="btn-search" type="submit">Search</button>
 </form>
 <br />
-{% if filtered_posts|length != 0 %}
+{% if filtered_users|length != 0 %}
     <h2 align="center">Filtered Posts</h2>
     <b class="text1">Filtered friends:
         {% for friend in filtered_users %}

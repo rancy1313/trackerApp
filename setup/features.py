@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_from_directory
 from flask_login import login_required, current_user
-from .models import User, Friend, Friend_request, Post
+from .models import User, FriendRequest, Post
 from . import db
 import os
 
@@ -13,39 +13,40 @@ target = os.path.join(APP_ROOT, 'images/')
 if not os.path.isdir(target):
     os.mkdir(target)
 
+
 # this function just returns a specific image based on the name from the directory
 @features.route('/upload/<filename>')
 def send_image(filename):
     return send_from_directory('images', filename)
 
+
+# th user home functions is used anytime the user needs to be directed back to their homepage.
 @features.route('/user-home', methods=['GET', 'POST'])
 @login_required
 def user_home():
-    #friend_request_for_current_user = Friend_request.query.filter_by(request_to_user_id=current_user.id).all()
     """ this loop is used to update friend info when ever the user goes to their homepage. Since the friend objects
     are stored in a list, they don't get updated if there are changes made outside the loop. For example, if one of the
     user's friends updates their profile, then that change will not be updated om the friend object inside
     the current user's friends list. So this loop goes through the current user's friends list and reasigns each friend
     in there with the updated info by id. """
-    all_requests = db.session.query(Friend_request).order_by(Friend_request.id.desc()).all()
+    all_requests = db.session.query(FriendRequest).order_by(FriendRequest.id.desc()).all()
     list_of_user_friends = []
     for index, friend in enumerate(current_user.friends_list):
         tmp_user = User.query.filter_by(id=friend.id).first()
         current_user.friends_list[index] = tmp_user
         list_of_user_friends.append(tmp_user)
     db.session.commit()
-
-    print("check: ", list_of_user_friends)
-    return render_template("home.html", user=current_user, all_requests=all_requests, list_of_user_friends=list_of_user_friends)
-
+    return render_template("home.html", user=current_user, all_requests=all_requests,
+                           list_of_user_friends=list_of_user_friends)
 
 
+# the search friends function is used to search for and send friend requests. It takes a username entered by the user
+# and returns users that match that username. There are restrictions such as not being able to search yourself.
 @features.route('/search-friends', methods=['GET', 'POST'])
 @login_required
 def search_friends():
-    # search is done by email because all emails are unique
-    # could replace search by email with a username variable or by first name
-    # retrieve email from form
+    # search is done by username because all usernames are unique
+    # retrieve username from form
     username = request.form.get('username')
     # search db for user with that email
     friend = User.query.filter_by(username=username).first()
@@ -66,6 +67,9 @@ def search_friends():
     return render_template("search_friend.html", user=current_user, friend=friend)
 
 
+#  After searching for a friend. The user can send a friend request. It will be sent to the user's friend, and if they
+#  accept, then both users will be each other's friends. Only one friend request can be sent at a time. If the friend
+#  declines the friend request then the user can send another one.
 @features.route('/search-friend/send-friend-request/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def send_friend_request(user_id):
@@ -75,35 +79,44 @@ def send_friend_request(user_id):
     if friend in current_user.friends_list:
         flash('Error. Already friends.', category="error")
         return redirect(url_for('features.search_friends'))
-
     # only one friend request to a person can be made until.
     # The person has to wait until the last request was cancelled
     for tmp_request in current_user.friend_requests:
         if tmp_request.request_to_user_id == user_id:
             flash('Error. There is already a pending friend request to this person.', category="error")
             return redirect(url_for('features.search_friends'))
-
+    # check friend's friend requests and if they sent the user one already then current user cannot send one to the
+    # friend. They have to accept/decline the one sent from the friend.
+    for tmp_request in friend.friend_requests:
+        if tmp_request.request_from_user_id == user_id:
+            flash('Error. There is already a pending friend request from this person.', category="error")
+            return redirect(url_for('features.search_friends'))
+    # if post request then proceed to send friend request
     if request.method == 'POST':
         # save the profile picture of the receiver so that the sender can see who they see the request to
         filename_receiver = friend.profile_picture
         # save the profile picture of the sender so the receiver can see who sent the request
         filename_sender = current_user.profile_picture
         # if not already friends then send request
+        # save names of the receiver
         tmp_receiver_name = friend.first_name + " " + friend.middle_name + " " + friend.last_name
+        # save name of the sender
         tmp_sender_name = current_user.first_name + " " + current_user.middle_name + " " + current_user.last_name
-        tmp_request = Friend_request(status="PENDING", receiver_name=tmp_receiver_name, sender_name=tmp_sender_name,
-                                     request_to_user_id=user_id, request_from_user_id=current_user.id,
-                                     receiver_profile_picture=filename_receiver, sender_profile_picture=filename_sender)
+        tmp_request = FriendRequest(status="PENDING", receiver_name=tmp_receiver_name, sender_name=tmp_sender_name,
+                                    request_to_user_id=user_id, request_from_user_id=current_user.id,
+                                    receiver_profile_picture=filename_receiver, sender_profile_picture=filename_sender)
         db.session.add(tmp_request)
         db.session.commit()
         flash('Request Sent.', category="success")
         return redirect(url_for('features.search_friends'))
 
+
+# If a user is sent a friend request then they can accept it and then become friends with the sender.
 @features.route('/user-home/accept-friend-request/<int:request_id>', methods=['GET', 'POST'])
 @login_required
 def accept_friend_request(request_id):
     # search friend request by id to delete
-    tmp_request = Friend_request.query.filter_by(id=request_id).first()
+    tmp_request = FriendRequest.query.filter_by(id=request_id).first()
     # get the information from the person who sent the request
     tmp_user = User.query.filter_by(id=tmp_request.request_from_user_id).first()
     # if request exist then delete and redirect to home
@@ -125,6 +138,7 @@ def accept_friend_request(request_id):
         return redirect(url_for('features.user_home'))
 
 
+# If a user wishes to remove a friend from their friend list then they can remove them when viewing that person's page
 @features.route('/user-home/view-friend-profile/remove-friend/<int:friend_id>', methods=['GET', 'POST'])
 @login_required
 def remove_friend(friend_id):
@@ -137,7 +151,7 @@ def remove_friend(friend_id):
         db.session.commit()
         flash('Friend removed', category="success")
         return redirect(url_for('features.user_home'))
-        #return redirect(url_for('features.view_friend_profile'), friend_id=friend_id)
+        # return redirect(url_for('features.view_friend_profile'), friend_id=friend_id)
     elif friend.username is None:
         current_user.friends_list.remove(friend)
         db.session.delete(friend)
@@ -149,12 +163,13 @@ def remove_friend(friend_id):
         return redirect(url_for('features.user_home'))
 
 
-
+# If a user gets a friend request from someone they do not want to be friends with, then they can cancel that person's
+# friend request.
 @features.route('/user-home/cancel-friend-request/<int:request_id>', methods=['GET', 'POST'])
 @login_required
 def cancel_friend_request(request_id):
     # search friend request by id to delete
-    tmp_request = Friend_request.query.filter_by(id=request_id).first()
+    tmp_request = FriendRequest.query.filter_by(id=request_id).first()
     # if request exist then delete and redirect to home
     if tmp_request:
         db.session.delete(tmp_request)
@@ -166,16 +181,17 @@ def cancel_friend_request(request_id):
         return redirect(url_for('features.user_home'))
 
 
+#  The user can view anyone's profile if the button is available. Usually available from looking at friends lists
 @features.route('/user-home/view-friend-profile/<int:friend_id>', methods=['GET', 'POST'])
 @login_required
 def view_friend_profile(friend_id):
     # search friend by id to view profile
-    """friend = Friend.query.filter_by(id=friend_id).first()
-    friend = User.query.filter_by(id=friend.friend_id).first()"""
     friend = User.query.filter_by(id=friend_id).first()
     return render_template('friend_page.html', friend=friend, user=current_user)
 
 
+# this is to send friend requests when either viewing someone's page that is not your friend or when sending a friend
+# request to a user from a friends friend list
 @features.route('/view-friend-profile/add_friend_from_friend/<int:user_id>/<int:curr_page_user_id>',
                 methods=['GET', 'POST'])
 @login_required
@@ -187,26 +203,37 @@ def add_friend_from_friend(user_id, curr_page_user_id):
             if tmp_request.request_to_user_id == user_id:
                 flash('Error. There is already a pending friend request to this person.', category="error")
                 return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
-
-        if request.method == 'POST':
-            tmp_user = User.query.filter_by(id=user_id).first()
-            #filename_receiver = tmp_user.email + '.jpg'
-            filename_receiver = tmp_user.profile_picture
-            #filename_sender = current_user.email + '.jpg'
-            filename_sender = current_user.profile_picture
-            # if not already friends then send request
-            tmp_receiver_name = tmp_user.first_name + " " + tmp_user.middle_name + " " + tmp_user.last_name
-            tmp_sender_name = current_user.first_name + " " + current_user.middle_name + " " + current_user.last_name
-            tmp_request = Friend_request(status="PENDING", receiver_name=tmp_receiver_name, sender_name=tmp_sender_name,
-                                         request_to_user_id=user_id, request_from_user_id=current_user.id,
-                                         receiver_profile_picture=filename_receiver,
-                                         sender_profile_picture=filename_sender)
-            db.session.add(tmp_request)
-            db.session.commit()
+        tmp_user = User.query.filter_by(id=user_id).first()
+        # check friend's friend requests and if they sent the user one already then current user cannot send one to the
+        # friend. They have to accept/decline the one sent from the friend.
+        for tmp_request in tmp_user.friend_requests:
+            if tmp_request.request_from_user_id == user_id:
+                flash('Error. There is already a pending friend request from this person.', category="error")
+                return redirect(url_for('features.search_friends'))
+        # this is here for a just in case but add friend button shouldn't show for friends you're already friends with
+        if tmp_user in current_user.friends_list:
+            flash('Error. You are already friends with this user.', category="error")
+            return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
+        # save the receiver's profile picture
+        filename_receiver = tmp_user.profile_picture
+        # save the sender's profile picture
+        filename_sender = current_user.profile_picture
+        # save the receiver's name
+        tmp_receiver_name = tmp_user.first_name + " " + tmp_user.middle_name + " " + tmp_user.last_name
+        # save the sender's name
+        tmp_sender_name = current_user.first_name + " " + current_user.middle_name + " " + current_user.last_name
+        # if not already friends then send request
+        tmp_request = FriendRequest(status="PENDING", receiver_name=tmp_receiver_name, sender_name=tmp_sender_name,
+                                    request_to_user_id=user_id, request_from_user_id=current_user.id,
+                                    receiver_profile_picture=filename_receiver,
+                                    sender_profile_picture=filename_sender)
+        db.session.add(tmp_request)
+        db.session.commit()
         flash('Friend request sent test', category="success")
         return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
 
 
+# all users can edit their profile. The only thing that cannot be changed yet is a user's username and email
 @features.route('/edit-profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def edit_profile(user_id):
@@ -244,6 +271,7 @@ def edit_profile(user_id):
             destination = "/".join([target, picture[0].filename])
             picture[0].save(destination)
             user_being_edited.profile_picture = picture[0].filename
+        # set all the user's values to the new values
         user_being_edited.first_name = first_name
         user_being_edited.middle_name = middle_name
         user_being_edited.last_name = last_name
@@ -273,7 +301,8 @@ def edit_profile(user_id):
     return render_template('edit_profile.html', user=current_user, user_being_edited=user_being_edited)
 
 
-
+# all users can create posts with images or without images. they also have the ability to tag any friend they want in
+# the post, change the color of the post, and edit the post privacy of who can view the post.
 @features.route('/create-post', methods=['GET', 'POST'])
 @login_required
 def create_post():
@@ -311,6 +340,7 @@ def create_post():
     return render_template('create_post.html', user=current_user)
 
 
+# users can delete any post they want
 @features.route('/delete-post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def delete_post(post_id):
@@ -321,6 +351,8 @@ def delete_post(post_id):
     flash('Post deleted.', category="success")
     return redirect(url_for('features.user_home'))
 
+
+# all posts can be edited and the changes will be saved. Any part of the post can be edited.
 @features.route('/edit-post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(post_id):
@@ -350,6 +382,7 @@ def edit_post(post_id):
                 file.save(destination)
                 # append to the post's images by file name
                 post.post_images.append(file.filename)
+        # save the new value to the post's variables
         post.title = title
         post.text = text
         post.post_privacy = post_privacy
@@ -358,11 +391,20 @@ def edit_post(post_id):
         db.session.commit()
     return render_template('edit_post.html', user=current_user, post=post)
 
+
+# when editing a post, the user can remove any image they want one by one. There could be a multi delete feature in
+# the future.
 @features.route('/edit-post/remove-post-image/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def remove_post_image(post_id):
+    # get post by id
     post = Post.query.filter_by(id=post_id).first()
+    # then get the image name from the hidden p tag that contains the image's name
+    # there is a for loop that makes a hidden p tag with the name of each image and depending on which delete button
+    # get pressed, that p tag's info will get fetched from this function for deletion
     image_name = request.form.get('image_name')
+    # there is an error when reloading the page after deleting an image, so this is here to make sure that the function
+    # doesn't try to delete an image that has already been deleted
     if image_name not in post.post_images:
         flash('Image may have been wrongly deleted!!', category="error")
         return render_template('edit_post.html', user=current_user, post=post)
@@ -371,6 +413,10 @@ def remove_post_image(post_id):
     return render_template('edit_post.html', user=current_user, post=post)
 
 
+# this feature is for the user to create a fake account that is only accessible themselves in order to tag tht account
+# in the user's posts. The user can use this feature to create accounts of anything such as their pet for example. Then
+# the user can tag their dog/friend/any entity they want in posts and sort the posts later if they ever want to find
+# it again.
 @features.route('/create-friend', methods=['GET', 'POST'])
 def create_friend():
     if request.method == "POST":
@@ -397,6 +443,7 @@ def create_friend():
         friend.last_name = last_name
         friend.gender = gender
         friend.birthday = birthday
+        # get the creation's profile picture
         tmp_file = request.files.getlist('file')
         if tmp_file[0].filename == '':
             friend.profile_picture = 'tmp_picture.jpg'
@@ -417,8 +464,12 @@ def create_friend():
         flash('Friend created.', category="success")
     return render_template('create_friend.html', user=current_user)
 
-@features.route('/filter-posts', methods=['GET', 'POST'])
-def filter_posts():
+
+# the user can filter all their posts by the tagged friends, key word in the post's text, and by the post's privacy type
+# When a keyword is used to filter, the filtered posts will bold that word everytime it shows up in its text(easier for
+# the user to find the keyword in the text)
+@features.route('/filter-posts/<int:user_id>', methods=['GET', 'POST'])
+def filter_posts(user_id):
     filtered_posts = []
     filtered_users = []
     if request.method == 'POST':
@@ -426,6 +477,8 @@ def filter_posts():
         filter_friends = request.form.getlist('filter_friends')
         # copy of filtered friends to check if there are posts were friends have not been tagged yet
         tmp_filtered_friends = filter_friends[:]
+        # get posts status types to filter through all th posts
+        post_status = request.form.getlist('post_status')
         # get keyword from user if user is filtering posts by keyword
         key_word = request.form.get('key_word')
         # a boolean to check if the key word was found
@@ -461,6 +514,10 @@ def filter_posts():
                 post.text = post.text.replace(key_word, '<b>' + key_word + '</b>')
                 # set was_key_word_found to let the user know that there is at least one post with the keyword
                 was_key_word_found = True
+            print(post_status)
+            if (post_status is not None) and (post not in filtered_posts):
+                if post.post_privacy in post_status:
+                    filtered_posts.append(post)
         # if the length of filtered posts is zero, then return an error message that no posts were found.
         if (len(filtered_posts) == 0) or (key_word != '') and (was_key_word_found is False):
             # first error is that no posts were found with the entered keyword
@@ -484,5 +541,6 @@ def filter_posts():
         # if post were found
         if len(filtered_posts) != 0:
             flash('Post(s) found.')
-    return render_template('filter_posts.html', user=current_user, filtered_posts=filtered_posts, filtered_users=filtered_users)
-
+    tmp_user = User.query.filter_by(id=user_id).first()
+    return render_template('filter_posts.html', user=current_user, tmp_user=tmp_user, filtered_posts=filtered_posts,
+                           filtered_users=filtered_users)
