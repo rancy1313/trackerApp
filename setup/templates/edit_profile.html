@@ -5,22 +5,26 @@
 <form action="{{ url_for('features.edit_profile', user_id=user_being_edited.id) }}" method="POST" enctype="multipart/form-data">
     <div class="text1">
         <h1>Edit Profile Info</h1>
+        <br />
         <h4><b>Username: {{ user.username }}</b></h4>
         <label for="first_name">First Name: {{ user_being_edited.first_name }}</label>
         <textarea   type="first_name"
                     class="form-control"
                     id="first_name"
-                    name="first_name">{{ user_being_edited.first_name }}</textarea>
+                    name="first_name"
+                    onkeyup="lengthCheck(document.getElementById(id).value, id)">{{ user_being_edited.first_name }}</textarea>
         <label for="middle_name">Middle Name: {{ user_being_edited.middle_name }}</label>
         <textarea   type="middle_name"
                     class="form-control"
                     id="middle_name"
-                    name="middle_name">{{ user_being_edited.middle_name }}</textarea>
+                    name="middle_name"
+                    onkeyup="middleNameCheck(document.getElementById(id).value, id)">{{ user_being_edited.middle_name }}</textarea>
         <label for="last_name">Last Name: {{ user_being_edited.last_name }}</label>
         <textarea   type="last_name"
                     class="form-control"
                     id="last_name"
-                    name="last_name">{{ user_being_edited.last_name }}</textarea>
+                    name="last_name"
+                    onkeyup="lengthCheck(document.getElementById(id).value, id)">{{ user_being_edited.last_name }}</textarea>
         <br />
         <label for="birthday">Birthday: {{ user_being_edited.birthday }}</label>
         <input type="date" id="birthday" name="birthday" min="1930-01-02"><br><br>
@@ -28,7 +32,14 @@
         <textarea   type="gender"
                     class="form-control"
                     id="gender"
-                    name="gender">{{ user_being_edited.gender }}</textarea>
+                    name="gender"
+                    onkeyup="lengthCheck(document.getElementById(id).value, id)">{{ user_being_edited.gender }}</textarea>
+        <br />
+        <label for="bio">Bio: {{ user_being_edited.bio }}</label>
+        <textarea   type="bio"
+                    class="form-control"
+                    id="bio"
+                    name="bio">{{ user_being_edited.bio }}</textarea>
         <br />
         <b>Previous Profile Picture:</b>
         <img class="img-responsive" src="{{ url_for('features.send_image', filename=user_being_edited.profile_picture) }}" width="150" >

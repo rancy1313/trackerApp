@@ -92,3 +92,20 @@ function usernameCheck(text, id, list_of_usernames) {
     }
 }
 
+function middleNameCheck(text, id) {
+    // if length is 0 then just background white because field is empty
+    if (text.length < 1) {
+        document.getElementById(id).style.backgroundColor="white";
+    } else {
+    // else since there is no length restrictions then green
+        document.getElementById(id).style.backgroundColor="#d5f7dd";
+    }
+    // loop to see if any special chars in text and if so then background red
+    var tmp = '!@#$%^&*()<>"';
+    for (let c = 0; c < tmp.length; c++){
+        if (text.indexOf(tmp[c]) > -1) {
+            document.getElementById(id).style.backgroundColor="#fce7e6";
+        }
+    }
+}
+

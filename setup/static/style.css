@@ -93,6 +93,12 @@
     border-style: inset;
 }
 
+.bio {
+    padding: 20px;
+    border-style: inset;
+    background-color: white;
+}
+
 * {box-sizing: border-box}
 body {font-family: Verdana, sans-serif; margin:0}
 .mySlides {display: none}

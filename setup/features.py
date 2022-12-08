@@ -366,7 +366,21 @@ def edit_profile(user_id):
         last_name = request.form.get('last_name')
         birthday = request.form.get('birthday')
         gender = request.form.get('gender')
+        bio = request.form.get('bio')
         picture = request.files.getlist('file')
+        # iterate through all form variables to check for special chars
+        tmp_lst = [first_name, middle_name, last_name, bio, gender]
+        # all special chars minus @ and . because it is needed to make an email
+        # loop make sures no special characters are in and if it is then refreshes page
+        # i allowed for some special chars like ) , - _ : ; for smiley faces :)
+        special_chars = '`@~$%^&*(=+|[]{}<>\"\\/'
+        for char in special_chars:
+            for form_var in tmp_lst:
+                # checks every other char
+                if char in form_var:
+                    tmp = 'No special chars allowed in: ' + form_var
+                    flash(tmp, category="error")
+                    return redirect(url_for('features.edit_profile', user_id=user_id))
         # if picture == "" then the that means the user did not submit a new image in the form.
         # Therefore, if picture != "" then the user is trying to submit a new photo
         if picture[0].filename != "":
@@ -387,6 +401,7 @@ def edit_profile(user_id):
         if birthday != "":
             user_being_edited.birthday = birthday
         user_being_edited.gender = gender
+        user_being_edited.bio = bio
         db.session.commit()
         """ there is an issue when you update a user's info. It won't update in the friends list. For example, if a user
         updates their profiles name, gender and birthday, it will not show the updated info in the home pages of the
