@@ -10,7 +10,8 @@ import random
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 authorization = Blueprint('authorization', __name__)
 
-@authorization.route('/login', methods=['GET', 'POST'])
+# changed login route to be empty, so that is the first page that is loaded when app is started
+@authorization.route('/', methods=['GET', 'POST'])
 def login():
     # this function renders login.html if method == get and logs in user if method == post
     if request.method == 'POST':
