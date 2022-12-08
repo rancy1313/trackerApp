@@ -14,9 +14,12 @@
                 <p>Middle Name: {{ user.middle_name }}</p>
             {% endif %}
             <p>Last Name: {{ user.last_name }}</p>
-            <p>Gender: {{ user.username }}</p>
+            <p>Username: {{ user.username }}</p>
             <p>Gender: {{ user.gender }}</p>
             <p>Birthday: {{ user.birthday }} </p>
+        </div>
+        <div class="text1" style="float: left;">
+            <p style="padding: 20px; border-style: inset;">{{ user.bio }}</p>
         </div>
         <p style="clear:both"></p>
     </div>

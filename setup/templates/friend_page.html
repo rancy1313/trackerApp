@@ -16,7 +16,7 @@
         {% if friend.username is none %}
             <p>Friend Creation</p>
         {% else %}
-            <p>username: {{ friend.username }}</p>
+            <p>Username: {{ friend.username }}</p>
         {% endif %}
         <p>Gender: {{ friend.gender }}</p>
         <p>Birthday: {{ friend.birthday }} </p>
@@ -37,6 +37,11 @@
             </form>
         {% endif %}
     </div>
+    {% if friend.username is not none %}
+        <div class="text1" style="float: left;">
+            <p style="padding: 20px; border-style: inset;">{{ friend.bio }}</p>
+        </div>
+    {% endif %}
     <p style="clear:both"></p>
 </div>
 {% if friend.friends_list|length != 0 %}
