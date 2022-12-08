@@ -45,6 +45,7 @@ def logout():
     return redirect(url_for('authorization.login'))
 
 
+# users can't do anything without an account, so they have to sign up
 @authorization.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     tmp_users = User.query.all()

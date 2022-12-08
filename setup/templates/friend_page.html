@@ -68,7 +68,7 @@
             {% endif %}
             {{ user_friend.last_name }}</p>
             <!-- the add button does not display if current user is one of the friends so tha they don't add themselves-->
-            {% if (user_friend.id != user.id) and (user_friend.id not in friend_friends_ids) %}
+            {% if (user_friend.id != user.id) and (user_friend.id not in friend_friends_ids) and (user_friend.email is not none) %}
                 <form action="{{ url_for('features.add_friend_from_friend', user_id=user_friend.id, curr_page_user_id=friend.id) }}" method="POST">
                     <button type="submit" class="btn-search">Add Friend</button>
                 </form>

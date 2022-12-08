@@ -39,31 +39,6 @@ def user_home():
     return render_template("home.html", user=current_user, all_requests=all_requests, list_of_user_friends=list_of_user_friends)
 
 
-"""@features.route('/search-friend', methods=['GET', 'POST'])
-@login_required
-def search_friend():
-    # search is done by email because all emails are unique
-    # could replace search by email with a username variable or by first name
-    # retrieve email from form
-    email = request.form.get('email')
-    # search db for user with that email
-    friend = User.query.filter_by(email=email).first()
-    # fixes bug were wrong friend is displaying. It is just getting a random friend so set friend
-    # to None if email is none
-    if email is None:
-        friend = None
-    if request.method == "POST":
-        # stop people from adding themselves
-        if current_user.email == email:
-            flash('Not allowed to search yourself', category="error")
-            # set friend to None so None type is passed to search friend page
-            friend = None
-        elif friend:
-            flash('Friend found', category="success")
-        else:
-            flash('Error. Friend not found', category="error")
-    return render_template("search_friend.html", user=current_user, friend=friend)"""
-
 
 @features.route('/search-friends', methods=['GET', 'POST'])
 @login_required
@@ -96,11 +71,10 @@ def search_friends():
 def send_friend_request(user_id):
     # find friend by User id
     friend = User.query.filter_by(id=user_id).first()
-    # check if already friends by looping through current user's friends and comparing friend ids
-    for tmp_friend in current_user.friends:
-        if tmp_friend.friend_id == friend.id:
-            flash('Error. Already friends.', category="error")
-            return redirect(url_for('features.search_friends'))
+    # if friend is in current user friends list then they are already friends
+    if friend in current_user.friends_list:
+        flash('Error. Already friends.', category="error")
+        return redirect(url_for('features.search_friends'))
 
     # only one friend request to a person can be made until.
     # The person has to wait until the last request was cancelled
@@ -141,32 +115,6 @@ def accept_friend_request(request_id):
         tmp_user.friends_list.append(tmp_curr)
         current_user.friends_list.append(tmp_user)
         db.session.commit()
-        """# first we have to add the sender of the request to the current user's friend list
-        tmp_friend = Friend()
-        tmp_friend.account_status = 'True'
-        tmp_friend.friend_id = tmp_request.request_from_user_id
-        tmp_friend.user_id = current_user.id
-        tmp_friend.first_name = tmp_user.first_name
-        tmp_friend.middle_name = tmp_user.middle_name
-        tmp_friend.last_name = tmp_user.last_name
-        tmp_friend.birthday = tmp_user.birthday
-        tmp_friend.gender = tmp_user.gender
-        tmp_friend.profile_picture = tmp_user.profile_picture
-        db.session.add(tmp_friend)
-        db.session.commit()
-        # now we have to add the current user to the friend list of the sender
-        tmp_friend = Friend()
-        tmp_friend.account_status = 'True'
-        tmp_friend.friend_id = current_user.id
-        tmp_friend.user_id = tmp_request.request_from_user_id
-        tmp_friend.first_name = current_user.first_name
-        tmp_friend.middle_name = current_user.middle_name
-        tmp_friend.last_name = current_user.last_name
-        tmp_friend.birthday = current_user.birthday
-        tmp_friend.gender = current_user.gender
-        tmp_friend.profile_picture = current_user.profile_picture
-        db.session.add(tmp_friend)
-        db.session.commit()"""
         # now we have to delete the friend request because it was accepted
         db.session.delete(tmp_request)
         db.session.commit()
@@ -175,38 +123,6 @@ def accept_friend_request(request_id):
     else:
         flash('Error.', category="error")
         return redirect(url_for('features.user_home'))
-
-"""@features.route('/search-friend/add-friend/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def add_friend(user_id):
-    # find friend by id
-    friend = User.query.filter_by(id=user_id).first()
-    xxx = db.session.query(User).order_by(User.id.desc()).all()
-    for tmpx in xxx:
-        print("Testing ids: ", tmpx.id)
-    for tmp in current_user.friends:
-        print(tmp.friend_id, friend.id)
-    # check if already friends by looping through current user's friends and comparing friend ids
-    for tmp_friend in current_user.friends:
-        if tmp_friend.friend_id == friend.id:
-            flash('Error. Already friends.', category="error")
-            return redirect(url_for('features.search_friend'))
-    if request.method == 'POST':
-        # if not already friends then add friend and
-        tmp_friend = Friend()
-        tmp_friend.account_status = 'True'
-        tmp_friend.friend_id = user_id
-        tmp_friend.user_id = current_user.id
-        tmp_friend.first_name = friend.first_name
-        tmp_friend.middle_name = friend.middle_name
-        tmp_friend.last_name = friend.last_name
-        tmp_friend.birthday = friend.birthday
-        tmp_friend.gender = friend.gender
-        tmp_friend.profile_picture = friend.email + '.jpg'
-        db.session.add(tmp_friend)
-        db.session.commit()
-        flash('Friend added', category="success")
-        return redirect(url_for('features.search_friend'))"""
 
 
 @features.route('/user-home/view-friend-profile/remove-friend/<int:friend_id>', methods=['GET', 'POST'])
@@ -231,44 +147,7 @@ def remove_friend(friend_id):
     else:
         flash('Error.', category="error")
         return redirect(url_for('features.user_home'))
-        #return redirect(url_for('features.view_friend_profile'), friend_id=friend_id)
-    """# there are two friend links because when someone accepts a friend request, they both need to be added to each
-    # other's friends list. Thus, that requires two links to do, so we have to delete both links
-    friend_link1 = Friend.query.filter_by(friend_id=friend_id).first()
-    friend_link2 = Friend.query.filter_by(friend_id=current_user.id).filter_by(user_id=friend_link1.friend_id).first()
-    # if friend exist then delete and redirect to home
-    if friend_link1 and friend_link1:
-        db.session.delete(friend_link1)
-        db.session.commit()
-        db.session.delete(friend_link2)
-        db.session.commit()
-        flash('Friend removed', category="success")
-        return redirect(url_for('features.user_home'))
-    else:
-        flash('Error.', category="error")
-        return redirect(url_for('features.user_home'))"""
 
-
-"""@features.route('/user-home/remove-friend/<int:friend_id>', methods=['GET', 'POST'])
-@login_required
-def remove_friend(friend_id):
-    # there are two friend links because when someone accepts a friend request, they both need to be added to each
-    # other's friends list. Thus, that requires two links to do, so we have to delete both links
-    friend_link1 = Friend.query.filter_by(id=friend_id).first()
-    friend_link2 = Friend.query.filter_by(friend_id=current_user.id).filter_by(user_id=friend_link1.friend_id).first()
-    print("hey test1", friend_link1)
-    print("hey test2", friend_link2)
-    # if friend exist then delete and redirect to home
-    if friend_link1 and friend_link1:
-        db.session.delete(friend_link1)
-        db.session.commit()
-        db.session.delete(friend_link2)
-        db.session.commit()
-        flash('Friend removed', category="success")
-        return redirect(url_for('features.user_home'))
-    else:
-        flash('Error.', category="error")
-        return redirect(url_for('features.user_home'))"""
 
 
 @features.route('/user-home/cancel-friend-request/<int:request_id>', methods=['GET', 'POST'])
@@ -301,36 +180,7 @@ def view_friend_profile(friend_id):
                 methods=['GET', 'POST'])
 @login_required
 def add_friend_from_friend(user_id, curr_page_user_id):
-    # search friend by id to delete
-    #friend = Friend.query.filter_by(id=friend_id).first()
-    """# check if the friend and the current user are the same person
-    if friend.friend_id == current_user.id:
-        flash('Can\'t add yourself', category="error")
-        # get the id of the current friend's page you're on to reload page
-        friend = User.query.filter_by(id=curr_page_user_id).first()
-        return render_template('friend_page.html', friend=friend, user=current_user)"""
-
-    """# check through current users and compare friend_id to see if user is already friends
-    for tmp_friend in current_user.friends:
-        if tmp_friend.friend_id == friend.friend_id:
-            flash('Error. Already friends.', category="error")
-            # get the id of the current friend's page you're on to reload page
-            friend = User.query.filter_by(id=curr_page_user_id).first()
-            return render_template('friend_page.html', friend=friend, user=current_user)"""
-
     if request.method == 'POST':
-        # else add friend
-        """tmp_friend = Friend()
-        tmp_friend.account_status = 'True'
-        tmp_friend.friend_id = friend.friend_id
-        tmp_friend.user_id = current_user.id
-        tmp_friend.first_name = friend.first_name
-        tmp_friend.middle_name = friend.middle_name
-        tmp_friend.last_name = friend.last_name
-        tmp_friend.birthday = friend.birthday
-        tmp_friend.gender = friend.gender
-        db.session.add(tmp_friend)
-        db.session.commit()"""
         # only one friend request to a person can be made until.
         # The person has to wait until the last request was cancelled
         for tmp_request in current_user.friend_requests:
@@ -340,8 +190,10 @@ def add_friend_from_friend(user_id, curr_page_user_id):
 
         if request.method == 'POST':
             tmp_user = User.query.filter_by(id=user_id).first()
-            filename_receiver = tmp_user.email + '.jpg'
-            filename_sender = current_user.email + '.jpg'
+            #filename_receiver = tmp_user.email + '.jpg'
+            filename_receiver = tmp_user.profile_picture
+            #filename_sender = current_user.email + '.jpg'
+            filename_sender = current_user.profile_picture
             # if not already friends then send request
             tmp_receiver_name = tmp_user.first_name + " " + tmp_user.middle_name + " " + tmp_user.last_name
             tmp_sender_name = current_user.first_name + " " + current_user.middle_name + " " + current_user.last_name
@@ -353,8 +205,7 @@ def add_friend_from_friend(user_id, curr_page_user_id):
             db.session.commit()
         flash('Friend request sent test', category="success")
         return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
-    # print(friend.first_name)
-    # return render_template("home.html", user=current_user)
+
 
 @features.route('/edit-profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -435,14 +286,6 @@ def create_post():
         post_privacy = request.form.get('post_privacy')
         # list of tagged friends from user
         tag_friends_id = request.form.getlist('tagged_friends')
-        """# create an empty list to collect ids from the tagged friends
-        ids = []
-        for friend_id in tag_friend_id:
-            # each element is a string. The names and id are separated by a space, so split by space and return a list
-            # of friend_id = [first_name, middle_name, last_name, friend_id]
-            # then append to the ids list the last element which is the friend_id
-            friend_id = friend_id.split(' ')
-            ids.append(friend_id[-1])"""
         # create post object to save details. excluding image
         # the images associated with the post are named after the post's id,
         # but id is created after being added to session
@@ -547,7 +390,6 @@ def create_friend():
          , but I can only do it after committing because the profile_picture var here are name after the object's id 
          which isn't created until after committing. As a solution, I just get the id of the last user object created 
          and add 1 to it because the new object ids just increment by 1. This fixes my issues. """
-        print("last user id: ", tmp_user.id)
         # create the friend object to save user submitted info
         friend = User()
         friend.first_name = first_name
