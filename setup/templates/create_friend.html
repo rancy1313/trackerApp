@@ -1,28 +1,36 @@
 {% extends "base.html" %}
 {% block title%}Create Friend{% endblock%}
 {% block content %}
+<!-- In this page, the user can create a fake friend account that they can use to tag in their posts. There could be
+    many reasons as to why a user could need a fake account of a person. After creating a fake account, The user can
+    now use that entity to sort through posts -->
 <h1 align="center">Create Friend</h1>
+<!-- form for features.create_friend function -->
 <form action="{{ url_for('features.create_friend') }}" enctype="multipart/form-data" method="POST">
     <label for="first_name">First Name: </label>
     <input id="first_name"
            class="form-control"
            name="first_name"
-           placeholder="ENTER FIRST NAME">
+           placeholder="ENTER FIRST NAME"
+           onkeyup="lengthCheck(document.getElementById(id).value, id)">
     <label for="middle_name">Middle Name: </label>
     <input id="middle_name"
            class="form-control"
            name="middle_name"
-           placeholder="ENTER MIDDLE NAME">
+           placeholder="ENTER MIDDLE NAME"
+           onkeyup="middleNameCheck(document.getElementById(id).value, id)">
     <label for="last_name">Last Name: </label>
     <input id="last_name"
            class="form-control"
            name="last_name"
-           placeholder="ENTER LAST NAME">
+           placeholder="ENTER LAST NAME"
+           onkeyup="lengthCheck(document.getElementById(id).value, id)">
     <label for="gender">Gender: </label>
     <input id="gender"
            class="form-control"
            name="gender"
-           placeholder="ENTER LAST GENDER">
+           placeholder="ENTER LAST GENDER"
+           onkeyup="lengthCheck(document.getElementById(id).value, id)">
     <br />
     <label for="birthday">Enter birthday</label>
     <input type="date"

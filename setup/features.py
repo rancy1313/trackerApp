@@ -187,7 +187,12 @@ def cancel_friend_request(request_id):
 def view_friend_profile(friend_id):
     # search friend by id to view profile
     friend = User.query.filter_by(id=friend_id).first()
-    return render_template('friend_page.html', friend=friend, user=current_user)
+    friends_of_friend = []
+    for x in friend.friends_list:
+        tmp_user = User.query.filter_by(id=x.id).first()
+        friends_of_friend.append(tmp_user)
+    #friends_of_friend = friend.friends_list
+    return render_template('friend_page.html', friend=friend, user=current_user, friends_of_friend=friends_of_friend)
 
 
 # this is to send friend requests when either viewing someone's page that is not your friend or when sending a friend

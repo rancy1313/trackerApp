@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title%}Edit Post{% endblock%}
 {% block content %}
-
+<!-- On this page, the user can edit any of their own posts. They can change any aspect of the post. They can add more
+ images or delete any image from the post. They can even change the post's privacy setting. The button to access this
+ can be found on the user's homepage within each post or in the filter page where the user's posts can be filtered. -->
 <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="POST" enctype="multipart/form-data">
     <h1>Edit Post Info</h1>
     <label for="title">Title: <i>{{ post.title }}</i></label>

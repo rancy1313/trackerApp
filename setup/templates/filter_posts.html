@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block title%}Filter Post{% endblock%}
 {% block content %}
-
+<!-- This page is to filter posts and can be used for a user to filter their own posts or to filter the posts of their
+     friends. The user can only filter through their friend's non-private posts(Everyone/Friends Only). The user can
+     filter posts by tagged friends, a keyword, and by the privacy setting of the post. The tagged friends filter just
+     goes through the posts and finds posts with that friend tagged. The keyword search looks through the posts text and
+     returns posts with that word bolded. The privacy search return posts with the selections that the user chose to see-->
 <h1 align="center">Filter Posts For: {{ tmp_user.first_name }} {{ tmp_user.middle_name }} {{ tmp_user.last_name }}</h1>
 <form method="POST">
     <label for="filter_friends">Search Tagged Friend:</label>

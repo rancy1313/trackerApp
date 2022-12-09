@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title%}Edit profile page{% endblock%}
-
+<!-- The user can update any information from their profile(excluding email/username/password yet. This is something I
+    can add later. The user can primarily change their profile picture and bio on this page. This form is for the
+    features.edit_profile function -->
 {% block content %}
 <form action="{{ url_for('features.edit_profile', user_id=user_being_edited.id) }}" method="POST" enctype="multipart/form-data">
     <div class="text1">

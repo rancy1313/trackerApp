@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title%}Create Post{% endblock%}
 {% block content %}
-
+<!-- On this page, the user can create posts that appear in their home page. They can add a title, post text, and post
+    color. They can also tag any of their friends to the post and select who can view the post in the post privacy
+    (Only You, Friends Only, and Everyone). The user can also add photos to their posts. -->
 <h1 align="center">Create Post</h1>
 <div class="text1">
 <form action="{{ url_for('features.create_post') }}" method="POST" enctype="multipart/form-data">

@@ -223,7 +223,7 @@
 {% for friend in list_of_user_friends %}
     {% for post in friend.posts|reverse %}
         <!-- First if check statement: looking for posts that the current user is tagged in -->
-        <!-- seconf if check statement: just makes sure that the post privacy is either "Friends Only" or "Everyone" -->
+        <!-- second if check statement: just makes sure that the post privacy is either "Friends Only" or "Everyone" -->
         {% if (user in post.friends_tagged) and ((post.post_privacy == "Friends Only") or (post.post_privacy == "Everyone")) %}
             <!-- I cannot include any posts with zero images because that will break the js function and any posts with images
                 after a plain text post will not have their images display properly. We exclude the text only posts id from
