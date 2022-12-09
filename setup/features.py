@@ -24,16 +24,13 @@ def send_image(filename):
 @features.route('/user-home', methods=['GET', 'POST'])
 @login_required
 def user_home():
-    """ this loop is used to update friend info when ever the user goes to their homepage. Since the friend objects
-    are stored in a list, they don't get updated if there are changes made outside the loop. For example, if one of the
-    user's friends updates their profile, then that change will not be updated om the friend object inside
-    the current user's friends list. So this loop goes through the current user's friends list and reasigns each friend
-    in there with the updated info by id. """
     all_requests = db.session.query(FriendRequest).order_by(FriendRequest.id.desc()).all()
+    # empty list of the user's friends
     list_of_user_friends = []
-    for index, friend in enumerate(current_user.friends_list):
-        tmp_user = User.query.filter_by(id=friend.id).first()
-        current_user.friends_list[index] = tmp_user
+    # this loop will find the user's friends and put them in a list that we will send to the user's home
+    # so the user's friends can be displayed
+    for friend_id in current_user.friends_list:
+        tmp_user = User.query.filter_by(id=friend_id).first()
         list_of_user_friends.append(tmp_user)
     db.session.commit()
     return render_template("home.html", user=current_user, all_requests=all_requests,
@@ -110,7 +107,7 @@ def send_friend_request(user_id):
         flash('Request Sent.', category="success")
         return redirect(url_for('features.search_friends'))
 
-
+# <I CHANGED THIS>
 # If a user is sent a friend request then they can accept it and then become friends with the sender.
 @features.route('/user-home/accept-friend-request/<int:request_id>', methods=['GET', 'POST'])
 @login_required
@@ -121,12 +118,9 @@ def accept_friend_request(request_id):
     tmp_user = User.query.filter_by(id=tmp_request.request_from_user_id).first()
     # if request exist then delete and redirect to home
     if tmp_request:
-        # you can't directly add current_user to friends list because for some reason counts it as none type
-        # ,so I am setting tmp_curr to current user
-        tmp_curr = User.query.filter_by(id=current_user.id).first()
-        # add each user to each other's friends list
-        tmp_user.friends_list.append(tmp_curr)
-        current_user.friends_list.append(tmp_user)
+        # add each user's id to each other's friends list
+        tmp_user.friends_list.append(current_user.id)
+        current_user.friends_list.append(tmp_user.id)
         db.session.commit()
         # now we have to delete the friend request because it was accepted
         db.session.delete(tmp_request)
@@ -137,23 +131,29 @@ def accept_friend_request(request_id):
         flash('Error.', category="error")
         return redirect(url_for('features.user_home'))
 
-
+# <I CHANGED THIS>
 # If a user wishes to remove a friend from their friend list then they can remove them when viewing that person's page
 @features.route('/user-home/view-friend-profile/remove-friend/<int:friend_id>', methods=['GET', 'POST'])
 @login_required
 def remove_friend(friend_id):
-    # find friend that the user is trying to delete by id
+    # find friend that the user is trying to delete by id to see if
     friend = User.query.filter_by(id=friend_id).first()
     # simple test to make sure user and friend are in each other's friend's list. Probably unnecessary.
-    if friend in current_user.friends_list and current_user in friend.friends_list:
-        current_user.friends_list.remove(friend)
-        friend.friends_list.remove(current_user)
+    # this also checks to see that friend is not a friend creation and these are two users removing each other
+    # because friend creations do not have the current user in their friends list since it's not a real account
+    if (friend_id in current_user.friends_list) and (current_user.id in friend.friends_list):
+        # remove friend's id from current user's friends_list
+        current_user.friends_list.remove(friend_id)
+        # remove current user's id from friend's friends list
+        friend.friends_list.remove(current_user.id)
         db.session.commit()
         flash('Friend removed', category="success")
         return redirect(url_for('features.user_home'))
-        # return redirect(url_for('features.view_friend_profile'), friend_id=friend_id)
+    # we check if the friend being removed is aa friend creation by checking if the friend's username is None
     elif friend.username is None:
-        current_user.friends_list.remove(friend)
+        # we remove the friend.id from current user's friends list
+        current_user.friends_list.remove(friend.id)
+        # then we delete the friend creation
         db.session.delete(friend)
         db.session.commit()
         flash('Friend Creation deleted.', category="success")
@@ -187,14 +187,15 @@ def cancel_friend_request(request_id):
 def view_friend_profile(friend_id):
     # search friend by id to view profile
     friend = User.query.filter_by(id=friend_id).first()
+    # empty list of the friend's friends
     friends_of_friend = []
-    for x in friend.friends_list:
-        tmp_user = User.query.filter_by(id=x.id).first()
+    # loop through the ids in the friend's friends list to get the actual accounts and display them
+    for tmp_friend in friend.friends_list:
+        tmp_user = User.query.filter_by(id=tmp_friend).first()
         friends_of_friend.append(tmp_user)
-    #friends_of_friend = friend.friends_list
     return render_template('friend_page.html', friend=friend, user=current_user, friends_of_friend=friends_of_friend)
 
-
+# <I CHANGED THIS>
 # this is to send friend requests when either viewing someone's page that is not your friend or when sending a friend
 # request to a user from a friends friend list
 @features.route('/view-friend-profile/add_friend_from_friend/<int:user_id>/<int:curr_page_user_id>',
@@ -214,9 +215,9 @@ def add_friend_from_friend(user_id, curr_page_user_id):
         for tmp_request in tmp_user.friend_requests:
             if tmp_request.request_from_user_id == user_id:
                 flash('Error. There is already a pending friend request from this person.', category="error")
-                return redirect(url_for('features.search_friends'))
+                return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
         # this is here for a just in case but add friend button shouldn't show for friends you're already friends with
-        if tmp_user in current_user.friends_list:
+        if tmp_user.id in current_user.friends_list:
             flash('Error. You are already friends with this user.', category="error")
             return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
         # save the receiver's profile picture
@@ -237,7 +238,7 @@ def add_friend_from_friend(user_id, curr_page_user_id):
         flash('Friend request sent test', category="success")
         return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
 
-
+# <I CHANGED THIS>
 # all users can edit their profile. The only thing that cannot be changed yet is a user's username and email
 @features.route('/edit-profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -287,25 +288,9 @@ def edit_profile(user_id):
         user_being_edited.gender = gender
         user_being_edited.bio = bio
         db.session.commit()
-        """ there is an issue when you update a user's info. It won't update in the friends list. For example, if a user
-        updates their profiles name, gender and birthday, it will not show the updated info in the home pages of the
-        user's friends. In this case here, when you update a created friend, it won't show the updated info in the 
-        user's home page, so to fix it i remove the outdated list object and just re add it. This fixes this problem"""
-        if user_being_edited != current_user:
-            for friend in current_user.friends_list:
-                if user_being_edited == friend:
-                    # we have to save the index of the created friend, so we can insert it back to where it was in the
-                    # list. This is trivial, and it can just be appended to the back of the list but since friends are
-                    # displayed from oldest to newest, it might be helpful to just insert it back to were it is
-                    # supposed to be in the list.
-                    index = current_user.friends_list.index(friend)
-                    current_user.friends_list.remove(friend)
-                    current_user.friends_list.insert(index, user_being_edited)
-                    break
-        db.session.commit()
     return render_template('edit_profile.html', user=current_user, user_being_edited=user_being_edited)
 
-
+# <I CHANGED THIS>
 # all users can create posts with images or without images. they also have the ability to tag any friend they want in
 # the post, change the color of the post, and edit the post privacy of who can view the post.
 @features.route('/create-post', methods=['GET', 'POST'])
@@ -326,10 +311,10 @@ def create_post():
         tmp_post = Post(title=title, text=text, color=color, post_privacy=post_privacy, user_id=current_user.id)
         db.session.add(tmp_post)
         db.session.commit()
-        # append tagged users to the post tagged list
+        # maybe I can do tmp_post.friends_tagged = tag_friends_id
+        # append tagged users' ids to the post tagged list
         for friend_id in tag_friends_id:
-            tmp_user = User.query.filter_by(id=friend_id).first()
-            tmp_post.friends_tagged.append(tmp_user)
+            tmp_post.friends_tagged.append(friend_id)
         db.session.commit()
         # save images from post
         for file in request.files.getlist('file'):
@@ -342,7 +327,15 @@ def create_post():
         db.session.commit()
         flash('Post created.', category="success")
         return redirect(url_for('features.user_home'))
-    return render_template('create_post.html', user=current_user)
+    # if request method is 'GET' then we have to send a list of the user's friends, so they show up as options in the
+    # selectpicker
+    # empty list of the user's friends
+    list_of_user_friends = []
+    for friend_id in current_user.friends_list:
+        tmp_user = User.query.filter_by(id=friend_id).first()
+        list_of_user_friends.append(tmp_user)
+    db.session.commit()
+    return render_template('create_post.html', user=current_user, list_of_user_friends=list_of_user_friends)
 
 
 # users can delete any post they want
@@ -356,7 +349,7 @@ def delete_post(post_id):
     flash('Post deleted.', category="success")
     return redirect(url_for('features.user_home'))
 
-
+# <I CHANGED THIS>
 # all posts can be edited and the changes will be saved. Any part of the post can be edited.
 @features.route('/edit-post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
@@ -376,9 +369,9 @@ def edit_post(post_id):
         # old values
         post.friends_tagged.clear()
         # append tagged users to the post tagged list
+        # maybe I can extend the list to include the ids instead of appending in a loop
         for friend_id in tag_friends_id:
-            tmp_user = User.query.filter_by(id=friend_id).first()
-            post.friends_tagged.append(tmp_user)
+            post.friends_tagged.append(friend_id)
         # save new images from post
         for file in request.files.getlist('file'):
             if file.filename != "":
@@ -394,7 +387,15 @@ def edit_post(post_id):
         if color != '#000000':
             post.color = color
         db.session.commit()
-    return render_template('edit_post.html', user=current_user, post=post)
+    # if request method is 'GET' then we have to send a list of the user's friends, so they show up as options in the
+    # selectpicker
+    # empty list of the user's friends
+    list_of_user_friends = []
+    for friend_id in current_user.friends_list:
+        tmp_user = User.query.filter_by(id=friend_id).first()
+        list_of_user_friends.append(tmp_user)
+    db.session.commit()
+    return render_template('edit_post.html', user=current_user, post=post, list_of_user_friends=list_of_user_friends)
 
 
 # when editing a post, the user can remove any image they want one by one. There could be a multi delete feature in
@@ -417,7 +418,7 @@ def remove_post_image(post_id):
     db.session.commit()
     return render_template('edit_post.html', user=current_user, post=post)
 
-
+# <I CHANGED THIS>
 # this feature is for the user to create a fake account that is only accessible themselves in order to tag tht account
 # in the user's posts. The user can use this feature to create accounts of anything such as their pet for example. Then
 # the user can tag their dog/friend/any entity they want in posts and sort the posts later if they ever want to find
@@ -457,7 +458,10 @@ def create_friend():
         db.session.add(friend)
         # get current user by query filter to avoid technical errors
         tmp_current_user = User.query.filter_by(id=current_user.id).first()
-        tmp_current_user.friends_list.append(friend)
+        db.session.commit()
+        # commit to create the friend id
+        tmp_current_user.friends_list.append(friend.id)
+        # commit a second time to save the id in the current user's friends list
         db.session.commit()
         if tmp_file[0].filename != '':
             # getting submitted image to store in image folder
@@ -477,9 +481,19 @@ def create_friend():
 # posts.
 @features.route('/filter-posts/<int:user_id>', methods=['GET', 'POST'])
 def filter_posts(user_id):
+    # the filtered posts are passed to the filter page and displayed
     filtered_posts = []
+    # filtered users are displayed on the filter page to let the user know which users are currently being filtered
     filtered_users = []
     tmp_current_user = User.query.filter_by(id=user_id).first()
+    # if request method is 'GET' then we have to send a list of the user's friends, so they show up as options in the
+    # selectpicker
+    # empty list of the user's friends
+    list_of_user_friends = []
+    for friend_id in tmp_current_user.friends_list:
+        tmp_user = User.query.filter_by(id=friend_id).first()
+        list_of_user_friends.append(tmp_user)
+    db.session.commit()
     if request.method == 'POST':
         # get the friends from user if user is filtering posts by friends
         filter_friends = request.form.getlist('filter_friends')
@@ -496,17 +510,24 @@ def filter_posts(user_id):
         # loop through all of user's posts
         for post in tmp_current_user.posts:
             # loop through all of user's friends to check if they are in the tagged friend of the post
-            for user in filter_friends:
-                tmp_user = User.query.filter_by(id=user).first()
+            for user_id in filter_friends:
+                tmp_user = User.query.filter_by(id=user_id).first()
                 # first case: check if user is in the post's tagged friends
                 # second case: make sure you do not add a post more than once in the filtered posts list because then
                 # it will display the post twice.
-                if (tmp_user in post.friends_tagged) and (post not in filtered_posts):
+                if (str(user_id) in post.friends_tagged) and (post not in filtered_posts):
                     # append post to the filtered list to pass to html and display
                     filtered_posts.append(post)
                     # make sure not to try to remove a user that has already been removed
-                    if user in tmp_filtered_friends:
-                        tmp_filtered_friends.remove(user)
+                    # we remove tmp_user.id from tmp_filtered_friends because if its length is not zero then an error
+                    # message is flashed to the user that no posts found with the friends they were trying to filter by
+                    """" I changed the multiple search off and now users can only filter by friends one at a time. Some
+                         of the framework for multiple friend search is still here. I would need to design how the 
+                         multiple search would be done before implementing it. Thus, it is going on the to do list. """
+                    if str(user_id) in tmp_filtered_friends:
+                        tmp_filtered_friends.remove(str(user_id))
+                    # tmp_user is added to  filtered_users if it's not in it because that is the list of users being
+                    # filtered
                     if tmp_user not in filtered_users:
                         filtered_users.append(tmp_user)
             # first case: check if key word is in the text of the post
@@ -531,7 +552,7 @@ def filter_posts(user_id):
             message = 'No posts found with keyword: ' + key_word + '.'
             flash(message, category="error")
         # if tmp_filtered_friends does not zero, then that means there is a friend that has not been tagged in a post
-        if len(tmp_filtered_friends) != 0:
+        elif len(tmp_filtered_friends) != 0:
             # second error is that no posts were found with the friends the user was trying to find
             message = 'No posts found with: '
             for user in tmp_filtered_friends:
@@ -546,7 +567,8 @@ def filter_posts(user_id):
                     message = message + tmp_user.first_name + '.'
             flash(message, category="error")
         # if post were found
-        if len(filtered_posts) != 0:
+        elif len(filtered_posts) != 0:
             flash('Post(s) found.')
     return render_template('filter_posts.html', user=current_user, tmp_user=tmp_current_user,
-                           filtered_posts=filtered_posts, filtered_users=filtered_users)
+                           filtered_posts=filtered_posts, filtered_users=filtered_users,
+                           list_of_user_friends=list_of_user_friends)

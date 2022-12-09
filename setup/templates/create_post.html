@@ -33,7 +33,7 @@
     <br />
     <label for="tagged_friends">Tag Friends</label>
     <select class="selectpicker" id="tagged_friends" name="tagged_friends" data-live-search="true" multiple>
-        {% for friend in user.friends_list %}
+        {% for friend in list_of_user_friends %}
             <option value="{{ friend.id }}">
                 {{ friend.first_name }}
                 {% if friend.middle_name %}
