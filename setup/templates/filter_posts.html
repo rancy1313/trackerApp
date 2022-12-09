@@ -9,8 +9,9 @@
 <h1 align="center">Filter Posts For: {{ tmp_user.first_name }} {{ tmp_user.middle_name }} {{ tmp_user.last_name }}</h1>
 <form method="POST">
     <label for="filter_friends">Search Tagged Friend:</label>
-    <select class="selectpicker" id="filter_friends" name="filter_friends" data-live-search="true" multiple>
-        {% for friend in tmp_user.friends_list %}
+    <select class="selectpicker" id="filter_friends" name="filter_friends" data-live-search="true">
+        <option value=""></option>
+        {% for friend in list_of_user_friends %}
             <option value="{{ friend.id }}">{{ friend.first_name }}
                     {% if friend.middle_name %}
                         {{ friend.middle_name }}
@@ -58,15 +59,15 @@
         {% for friend in filtered_users %}
             <i><!-- formatting to let user know which friends they have filtered -->
                 {% set tmp_friend_name = friend.first_name %}
-                   {% if friend.middle_name %}
-                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.middle_name %}
-                    {% endif %}
-                    {% if loop.index == filtered_users|length %}
-                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + '.' %}
-                    {% else %}
-                        {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + ',' %}
-                    {% endif %}
-                    {{ tmp_friend_name }}
+                {% if friend.middle_name %}
+                    {% set tmp_friend_name = tmp_friend_name + ' ' + friend.middle_name %}
+                {% endif %}
+                {% if loop.index == filtered_users|length %}
+                    {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + '.' %}
+                {% else %}
+                    {% set tmp_friend_name = tmp_friend_name + ' ' + friend.last_name + ',' %}
+                {% endif %}
+                {{ tmp_friend_name }}
             </i>
         {% endfor %}
     </b>
@@ -115,18 +116,18 @@
                     {% if post.friends_tagged|length != 0 %}
                         <p class="tag_friend_search">Tagged Friends:
                             <!-- loop through the tagged friends of the post to display them -->
-                            {% for tagged_friend in post.friends_tagged %}
-                            <!-- the if statement checks if we are on the last iteration of the loop so a period can be printed -->
-                            {% set tmp_friend_name = tagged_friend.first_name %}
-                            {% if tagged_friend.middle_name %}
-                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.middle_name %}
-                            {% endif %}
-                            {% if loop.index == post.friends_tagged|length %}
-                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + '.' %}
-                            {% else %}
-                                {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + ',' %}
-                            {% endif %}
-                                {{ tmp_friend_name }}
+                            {% for tagged_friend in list_of_user_friends if tagged_friend.id|string in post.friends_tagged %}
+                                <!-- the if statement checks if we are on the last iteration of the loop so a period can be printed -->
+                                {% set tmp_friend_name = tagged_friend.first_name %}
+                                {% if tagged_friend.middle_name %}
+                                    {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.middle_name %}
+                                {% endif %}
+                                {% if loop.index == post.friends_tagged|length %}
+                                    {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + '.' %}
+                                {% else %}
+                                    {% set tmp_friend_name = tmp_friend_name + ' ' + tagged_friend.last_name + ',' %}
+                                {% endif %}
+                                    {{ tmp_friend_name }}
                             {% endfor %}
                         </p>
                     {% endif %}
@@ -160,9 +161,10 @@
     <!-- I cannot include any posts with zero images because that will break the js function and any posts with images
         after a plain text post will not have their images display properly. We exclude the text only posts id from
         the lst passed to the js function -->
-    {% if (post.post_images|length) != 0 %}
+    {% if (post.post_images|length) and (post.post_privacy != 'Only You' or user.id == tmp_user.id) %}
         <p hidden>{{ lst.append(post.id) }}</p>
     {% endif %}
 {% endfor %}
+
 <body onload="loadSlides({{ lst|safe }})"></body>
 {% endblock %}

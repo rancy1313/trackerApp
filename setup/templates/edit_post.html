@@ -23,14 +23,8 @@
            class="form-control"
            placeholder="ENTER POST COLOR">
     <br />
-    <!-- create an empty list to store user ids from friend's tagged list of the post-->
-    {% set lst = [] %}
-    {% for tmp_friend in post.friends_tagged %}
-        <!-- is hidden because not trying to display -->
-        <p hidden>{{ lst.append(tmp_friend.id) }}</p>
-    {% endfor %}
     <label for="tagged_friends">Tag Friends:
-        {% for tagged_friend in post.friends_tagged %}
+        {% for tagged_friend in list_of_user_friends if tagged_friend.id|string in post.friends_tagged %}
             <!-- the if statement checks if we are on the last iteration of the loop so a period can be printed -->
             <i>{% if loop.index == post.friends_tagged|length %}
                     {{ tagged_friend.first_name }}
@@ -52,9 +46,9 @@
         {% endfor %}
     </label>
     <select class="selectpicker" id="tagged_friends" name="tagged_friends" data-live-search="true" multiple>
-        {% for friend in user.friends_list %}
-            {% if friend.id in lst %}
-                <!-- if friend.friend_id is in the lst then preselect for user to keep the same friends tagged-->
+        {% for friend in list_of_user_friends %}
+            {% if friend.id|string in post.friends_tagged %}
+                <!-- if friend.friend_id is in the post.friends_tagged then preselect for user to keep the same friends tagged-->
                 <option value="{{ friend.id }}" selected>
                     {{ friend.first_name }}
                     {% if friend.middle_name %}
@@ -76,8 +70,8 @@
     </select>
     <br />
     <br />
-    <lable for="file">Add More Images: </lable>
-    <input type="file" name="file" accept="image/*" multiple/>
+    <label for="file">Add More Images: </label>
+    <input id="file" type="file" name="file" accept="image/*" multiple/>
     <br />
     <label for="post_privacy">Who can view post currently: <i>{{ post.post_privacy }}</i></label>
     <!-- I formatted it so that the post previous privacy choice is preselected -->
