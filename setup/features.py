@@ -107,7 +107,7 @@ def send_friend_request(user_id):
         flash('Request Sent.', category="success")
         return redirect(url_for('features.search_friends'))
 
-# <I CHANGED THIS>
+
 # If a user is sent a friend request then they can accept it and then become friends with the sender.
 @features.route('/user-home/accept-friend-request/<int:request_id>', methods=['GET', 'POST'])
 @login_required
@@ -131,7 +131,7 @@ def accept_friend_request(request_id):
         flash('Error.', category="error")
         return redirect(url_for('features.user_home'))
 
-# <I CHANGED THIS>
+
 # If a user wishes to remove a friend from their friend list then they can remove them when viewing that person's page
 @features.route('/user-home/view-friend-profile/remove-friend/<int:friend_id>', methods=['GET', 'POST'])
 @login_required
@@ -195,7 +195,7 @@ def view_friend_profile(friend_id):
         friends_of_friend.append(tmp_user)
     return render_template('friend_page.html', friend=friend, user=current_user, friends_of_friend=friends_of_friend)
 
-# <I CHANGED THIS>
+
 # this is to send friend requests when either viewing someone's page that is not your friend or when sending a friend
 # request to a user from a friends friend list
 @features.route('/view-friend-profile/add_friend_from_friend/<int:user_id>/<int:curr_page_user_id>',
@@ -238,7 +238,7 @@ def add_friend_from_friend(user_id, curr_page_user_id):
         flash('Friend request sent test', category="success")
         return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
 
-# <I CHANGED THIS>
+
 # all users can edit their profile. The only thing that cannot be changed yet is a user's username and email
 @features.route('/edit-profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -290,7 +290,7 @@ def edit_profile(user_id):
         db.session.commit()
     return render_template('edit_profile.html', user=current_user, user_being_edited=user_being_edited)
 
-# <I CHANGED THIS>
+
 # all users can create posts with images or without images. they also have the ability to tag any friend they want in
 # the post, change the color of the post, and edit the post privacy of who can view the post.
 @features.route('/create-post', methods=['GET', 'POST'])
@@ -349,7 +349,7 @@ def delete_post(post_id):
     flash('Post deleted.', category="success")
     return redirect(url_for('features.user_home'))
 
-# <I CHANGED THIS>
+
 # all posts can be edited and the changes will be saved. Any part of the post can be edited.
 @features.route('/edit-post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
@@ -418,7 +418,7 @@ def remove_post_image(post_id):
     db.session.commit()
     return render_template('edit_post.html', user=current_user, post=post)
 
-# <I CHANGED THIS>
+
 # this feature is for the user to create a fake account that is only accessible themselves in order to tag tht account
 # in the user's posts. The user can use this feature to create accounts of anything such as their pet for example. Then
 # the user can tag their dog/friend/any entity they want in posts and sort the posts later if they ever want to find
