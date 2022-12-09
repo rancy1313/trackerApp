@@ -203,16 +203,15 @@
         <p hidden>{{ lst.append(post.id) }}</p>
     {% endif %}
 {% endfor %}
-<!-- I need to add the ids of the user's posts where the friend is tagged so those posts can have their image index set
+<!-- I need to add the ids of the posts where the friend is tagged so those posts can have their image index set
     to 1 for the javascript function to work -->
-<!--{% for post in user.posts %}
-    {% if (post.post_images|length) != 0 and (friend in post.friends_tagged) %}
-        <p hidden>{{ lst.append(post.id) }}</p>
-    {% endif %}
-{% endfor %}-->
 {% for tmp_friend in friends_of_friend %}
     {% for post in tmp_friend.posts %}
+        <!-- same if statement in the one that displays tagged posts. Just makes sure that the appropriate post ids are
+            collected. -->
         {% if (friend in post.friends_tagged) and (((post.post_privacy == 'Only You') and (post in user.posts)) or (post.post_privacy != 'Only You')) %}
+            <!-- make sure post has images, or it will mess things up if a post with no images' id gets in this list -->
+            <!-- it tries to index a post with no images and breaks the function -->
             {% if (post.post_images|length) != 0 and (post.id not in lst) %}
                 <p hidden>{{ lst.append(post.id) }}</p>
             {% endif %}
@@ -333,115 +332,6 @@
 {% endfor %}
 {% endfor %}
 </div>
-
-
-
-
-
-
-
-
-{% for post in user.posts|reverse %}
-    {% if friend in post.friends_tagged %}
-        <div class="groove" style="background-color: {{ post.color }}">
-            <div class="row">
-                <div class="column">
-                    <!-- this div is for formatting the dots next to the image -->
-                    <div style="float: left;">
-                        <!-- this will separate the dots next to each post's images -->
-                        {% set tmp_dot = 'dot ' + (post.id|string) %}
-                        {% for image in post.post_images %}
-                            <div style="text-align:center">
-                                <span class="{{ tmp_dot }}" onclick="currentSlide({{ loop.index }}, {{ post.id|safe }})"></span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <!-- this will separate the posts images for the javascript functions -->
-                    {% set tmp_class = 'post_images' + (post.id|string) %}
-                    <div class="slideshow-container" style="float: left;">
-                        <!-- this is code for arrows that will go to the next post image. Not working properly -->
-                        <!--<a class="next" onclick="plusSlides({{ loop.index|safe }}, 1, {{ post.id|safe }})">❯</a>-->
-                        {% if (post.post_images|length) != 0 %}
-                            <div class="image">
-                                {% for image in post.post_images %}
-                                    <div class="{{ tmp_class }}">
-                                        <div class="numbertext">{{ loop.index }} / {{ post.post_images|length }}</div>
-                                        <img class="img-responsive" src="{{ url_for('features.send_image', filename=image) }}" style="width: 200px">
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <!--<a class="prev" onclick="plusSlides({{ loop.index|safe }}, -1, {{ post.id|safe }})">❮</a>-->
-                    </div>
-                </div>
-                <div class="column">
-                    <!-- this div is for formatting the post's text -->
-                    <div class="text3" style="float: left;">
-                        <b>{{ post.title }}</b>
-                        <p>{{ post.text }}</p>
-                        <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
-                        {% if (post.friends_tagged|length) != 0 %}
-                            <p>Tagged Friends:
-                                <!-- loop through the tagged friends of the post to display them -->
-                                {% for tagged_friend in post.friends_tagged %}
-                                <!-- the if statement checks if we are on the last iteration of the loop so a period can be printed -->
-                                    <i>{% if loop.index == post.friends_tagged|length %}
-                                        {{ tagged_friend.first_name }}
-                                        <!-- If user has no middle name then don't show this-->
-                                        {% if tagged_friend.middle_name %}
-                                            {{ tagged_friend.middle_name }}
-                                        {% endif %}
-                                        {{ tagged_friend.last_name }}.<!-- period is right here -->
-                                        {% else %}
-                                        <!-- if we are not at the last item in the list then display a comma -->
-                                        {{ tagged_friend.first_name }}
-                                        <!-- If user has no middle name then don't show this-->
-                                        {% if tagged_friend.middle_name %}
-                                            {{ tagged_friend.middle_name }}
-                                        {% endif %}
-                                        {{ tagged_friend.last_name }},<!-- comma is right here -->
-                                        {% endif %}
-                                    </i>
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="column">
-                    <div styel="float: left;">
-                        <div class="image" style="float: left;">
-                            <img src="{{ url_for('features.send_image', filename=user.profile_picture) }}" width="85" height="85">
-                        </div>
-                        <div class="text1" style="float: left;">
-                            <p>Post by: {{ user.first_name }}
-                                <!-- If user has no middle name then don't show this-->
-                                {% if user.middle_name %}
-                                    {{ user.middle_name }}
-                                {% endif %}
-                                    {{ user.last_name }}
-                            </p>
-                            <form action="{{ url_for('features.view_friend_profile', friend_id=user.id) }}" method="POST">
-                                <button type="submit" class="btn-search">View Friend Profile</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="text1">
-                <p align="right">Who can see post: <i>{{ post.post_privacy }}</i></p>
-                <!-- will cut off the seconds -->
-                {% set tmp_time = (post.date|string)[:16] %}
-                <p align="right">{{ tmp_time }}</p>
-            </div>
-        </div>
-        <br />
-    {% endif %}
-{% endfor %}
-
-
-
-
-<h1>{{lst}}</h1>
 <body onload="loadSlides({{ lst|safe }})"></body>
 <br />
 <br />
