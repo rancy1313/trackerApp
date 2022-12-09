@@ -260,7 +260,6 @@
                     <!-- this div is for formatting the post's text -->
                     <div class="text3" style="float: left;">
                         <b>{{ post.title }}</b>
-                        <p>{{post.id}}</p>
                         <p>{{ post.text }}</p>
                         <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
                         {% if (post.friends_tagged|length) != 0 %}
