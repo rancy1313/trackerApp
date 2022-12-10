@@ -24,7 +24,7 @@ def send_image(filename):
 @features.route('/user-home', methods=['GET', 'POST'])
 @login_required
 def user_home():
-    all_requests = db.session.query(FriendRequest).order_by(FriendRequest.id.desc()).all()
+    requests_to_user = FriendRequest.query.filter_by(request_to_user_id=current_user.id).all()
     # empty list of the user's friends
     list_of_user_friends = []
     # this loop will find the user's friends and put them in a list that we will send to the user's home
@@ -33,7 +33,7 @@ def user_home():
         tmp_user = User.query.filter_by(id=friend_id).first()
         list_of_user_friends.append(tmp_user)
     db.session.commit()
-    return render_template("home.html", user=current_user, all_requests=all_requests,
+    return render_template("home.html", user=current_user, requests_to_user=requests_to_user,
                            list_of_user_friends=list_of_user_friends)
 
 
@@ -82,9 +82,8 @@ def send_friend_request(user_id):
         if tmp_request.request_to_user_id == user_id:
             flash('Error. There is already a pending friend request to this person.', category="error")
             return redirect(url_for('features.search_friends'))
-    # check friend's friend requests and if they sent the user one already then current user cannot send one to the
-    # friend. They have to accept/decline the one sent from the friend.
-    for tmp_request in friend.friend_requests:
+        # check friend's friend requests and if they sent the user one already then current user cannot send one to the
+        # friend. They have to accept/decline the one sent from the friend.
         if tmp_request.request_from_user_id == user_id:
             flash('Error. There is already a pending friend request from this person.', category="error")
             return redirect(url_for('features.search_friends'))
@@ -209,13 +208,12 @@ def add_friend_from_friend(user_id, curr_page_user_id):
             if tmp_request.request_to_user_id == user_id:
                 flash('Error. There is already a pending friend request to this person.', category="error")
                 return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
-        tmp_user = User.query.filter_by(id=user_id).first()
-        # check friend's friend requests and if they sent the user one already then current user cannot send one to the
-        # friend. They have to accept/decline the one sent from the friend.
-        for tmp_request in tmp_user.friend_requests:
+            # check friend's friend requests and if they sent the user one already then current user cannot send one to
+            # the friend. They have to accept/decline the one sent from the friend.
             if tmp_request.request_from_user_id == user_id:
                 flash('Error. There is already a pending friend request from this person.', category="error")
                 return redirect(url_for('features.view_friend_profile', friend_id=curr_page_user_id))
+        tmp_user = User.query.filter_by(id=user_id).first()
         # this is here for a just in case but add friend button shouldn't show for friends you're already friends with
         if tmp_user.id in current_user.friends_list:
             flash('Error. You are already friends with this user.', category="error")

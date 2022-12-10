@@ -3,25 +3,29 @@
 {% block content %}
 
 <div class="groove">
-    <div class="container">
-        <div class="image" style="float: left;">
-            <img class="img-responsive" src="{{ url_for('features.send_image', filename=user.profile_picture) }}" width="200">
+    <div class="row">
+        <div class="column">
+            <div class="image" style="float: left; width: 20%;">
+                <img class="img-responsive" src="{{ url_for('features.send_image', filename=user.profile_picture) }}" style="width: 100%;">
+            </div>
+            <div class="text1" style="float: left;">
+                <p>First Name: {{ user.first_name }}</p>
+                <!-- If user has no middle name then don't show this-->
+                {% if user.middle_name %}
+                    <p>Middle Name: {{ user.middle_name }}</p>
+                {% endif %}
+                <p>Last Name: {{ user.last_name }}</p>
+            </div>
+            <div class="text1" style="float: left;">
+                <p>Username: {{ user.username }}</p>
+                <p>Gender: {{ user.gender }}</p>
+                <p>Birthday: {{ user.birthday }} </p>
+            </div>
+            <div class="text1" style="float: left; width: 80%;">
+                <p class="bio">{{ user.bio }}</p>
+            </div>
+            <p style="clear:both"></p>
         </div>
-        <div class="text1" style="float: left;">
-            <p>First Name: {{ user.first_name }}</p>
-            <!-- If user has no middle name then don't show this-->
-            {% if user.middle_name %}
-                <p>Middle Name: {{ user.middle_name }}</p>
-            {% endif %}
-            <p>Last Name: {{ user.last_name }}</p>
-            <p>Username: {{ user.username }}</p>
-            <p>Gender: {{ user.gender }}</p>
-            <p>Birthday: {{ user.birthday }} </p>
-        </div>
-        <div class="text1" style="float: left;">
-            <p class="bio">{{ user.bio }}</p>
-        </div>
-        <p style="clear:both"></p>
     </div>
 </div>
 <p style="float: left; padding: 10px;"></p>
@@ -32,15 +36,15 @@
     <input id="filter_friends" type="text" class="form-control" placeholder="SEARCH FRIENDS">
     <br />
     <div id="user_friends">
-            {% for friend in list_of_user_friends %}
-                <!-- friends created by the user will show up differently in their friend list, so they are easier to distinguish
-                    from other users. So far they just have two different shades of green-->
-                {% if friend.email is none %}
-                    {% set class_type = 'friend_creation' %}
-                {% else %}
-                    {% set class_type = 'friends' %}
-                {% endif %}
-                <div class="filter_users">
+        {% for friend in list_of_user_friends %}
+            <!-- friends created by the user will show up differently in their friend list, so they are easier to distinguish
+                 from other users. So far they just have two different shades of green-->
+            {% if friend.email is none %}
+                {% set class_type = 'friend_creation' %}
+            {% else %}
+                {% set class_type = 'friends' %}
+            {% endif %}
+            <div class="filter_users">
                 <div class="{{ class_type }}">
                     <div class="row">
                         <!-- this has to be in a p tag or else the image disappears when user tries to use search field-->
@@ -66,55 +70,49 @@
                         </div>
                     </div>
                 </div>
-                </div>
-                <br />
-            {% endfor %}
-        <!--</div>-->
+            </div>
+            <br />
+        {% endfor %}
     </div>
 </div>
 <p style="float: left; padding: 10px;"></p>
 <button type="button" class="collapsible">Friend Requests</button>
 <div class="content">
     <h2 align="center">Friend Requests</h2>
-    {% for request in all_requests %}
-        {% if (request.request_to_user_id == user.id) or (request.request_from_user_id == user.id) %}
-            {% if request.request_to_user_id == user.id %}
-                <div class="to_user">
-                    <div class="image" style="float: left;">
-                        <img class="img-responsive" src="{{ url_for('features.send_image', filename=request.sender_profile_picture) }}" width="150" height="150">
-                    </div>
-                    <div class="text1" style="float: left;">
-                        <p>{{ request.sender_name }}</p>
-                        <p>{{ request.date }}</p>
-                        <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
-                            <button style="float: left;" type="submit" class="btn-search">Decline</button>
-                        </form>
-                        <p style="float: left; padding: 10px;"></p>
-                        <form action="{{ url_for('features.accept_friend_request', request_id=request.id) }}" method="POST">
-                            <button style="float: left;" type="submit" class="btn-search">Accept</button>
-                        </form>
-                    </div>
-                    <p style="clear:both"></p>
-                </div>
-            {% endif %}
-            {% if request.request_from_user_id == user.id %}
-                <div class="from_user">
-                    <div class="image" style="float: left;">
-                        <img class="img-responsive" src="{{ url_for('features.send_image', filename=request.receiver_profile_picture) }}" width="150" height="150">
-                    </div>
-                    <div class="text1" style="float: left;">
-                        <p>{{ request.receiver_name }}</p>
-                        <p>{{ request.status }}</p>
-                        <p>{{ request.date }}</p>
-                        <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
-                            <button type="submit" class="btn-search">Cancel</button>
-                        </form>
-                    </div>
-                    <p style="clear:both"></p>
-                </div>
-            {% endif %}
-        {% endif %}
-        <br />
+    {% for request in requests_to_user %}
+        <div class="to_user">
+            <div class="image" style="float: left;">
+                <img class="img-responsive" src="{{ url_for('features.send_image', filename=request.sender_profile_picture) }}" width="150" height="150">
+            </div>
+            <div class="text1" style="float: left;">
+                <p>{{ request.sender_name }}</p>
+                <p>{{ request.date }}</p>
+                <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
+                    <button style="float: left;" type="submit" class="btn-search">Decline</button>
+                </form>
+                <p style="float: left; padding: 10px;"></p>
+                <form action="{{ url_for('features.accept_friend_request', request_id=request.id) }}" method="POST">
+                    <button style="float: left;" type="submit" class="btn-search">Accept</button>
+                </form>
+            </div>
+            <p style="clear:both"></p>
+        </div>
+    {% endfor %}
+    {% for request in user.friend_requests %}
+        <div class="from_user">
+            <div class="image" style="float: left;">
+                <img class="img-responsive" src="{{ url_for('features.send_image', filename=request.receiver_profile_picture) }}" width="150" height="150">
+            </div>
+            <div class="text1" style="float: left;">
+                <p>{{ request.receiver_name }}</p>
+                <p>{{ request.status }}</p>
+                <p>{{ request.date }}</p>
+                <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
+                    <button type="submit" class="btn-search">Cancel</button>
+                </form>
+            </div>
+            <p style="clear:both"></p>
+        </div>
     {% endfor %}
 </div>
 <p style="float: left; padding: 10px;"></p>
@@ -225,7 +223,7 @@
     {% for post in friend.posts|reverse %}
         <!-- First if check statement: looking for posts that the current user is tagged in -->
         <!-- second if check statement: just makes sure that the post privacy is either "Friends Only" or "Everyone" -->
-        {% if (user.id in post.friends_tagged) and ((post.post_privacy == "Friends Only") or (post.post_privacy == "Everyone")) %}
+        {% if (user.id|string in post.friends_tagged) and ((post.post_privacy == "Friends Only") or (post.post_privacy == "Everyone")) %}
             <!-- I cannot include any posts with zero images because that will break the js function and any posts with images
                 after a plain text post will not have their images display properly. We exclude the text only posts id from
                 the lst passed to the js function -->

@@ -99,8 +99,8 @@ def sign_up():
             flash('First name, last name, and gender must be greater than 1 character.', category="error")
         elif password1 != password2:
             flash('Passwords don\'t match.', category="error")
-        elif len(password1) < 1:
-            flash('Password must be greater than 0 characters', category="error")
+        elif len(password1) < 7:
+            flash('Password must be greater than 7 characters', category="error")
         else:
             # create path for image storing
             target = os.path.join(APP_ROOT, 'images/')
