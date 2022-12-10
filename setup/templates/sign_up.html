@@ -7,6 +7,7 @@ the user's home page -->
 <!-- form to pass variables to sign_up() there are some p tags to describe email and password specifications -->
 <form method="POST" enctype="multipart/form-data">
     <h3 align="center">Sign Up</h3>
+    <h4 id="first_name_tag"></h4>
     <div class="form-group">
         <label for="first_name">First Name:</label>
         <input
@@ -18,7 +19,7 @@ the user's home page -->
                 onkeyup="lengthCheck(document.getElementById(id).value, id)"
         />
     </div>
-    <p id="oop"></p>
+    <h4 id="middle_name_tag"></h4>
     <div class="form-group">
         <label for="middle_name">Middle Name:</label>
         <input
@@ -27,9 +28,11 @@ the user's home page -->
                 id="middle_name"
                 name="middle_name"
                 placeholder="ENTER MIDDLE NAME(S)"
-                onkeyup="middleNameCheck(document.getElementById(id).value, id)"
+                onkeyup="lengthCheck(document.getElementById(id).value, id)"
+
         />
     </div>
+    <h4 id="last_name_tag"></h4>
     <div class="form-group">
         <label for="last_name">Last Name:</label>
         <input
@@ -55,6 +58,7 @@ the user's home page -->
                 placeholder="ENTER BIO"
         />
     </div>
+    <h4 id="gender_tag"></h4>
     <div class="form-group">
         <label for="gender">Gender:</label>
         <input
@@ -70,9 +74,13 @@ the user's home page -->
         already exist -->
     {% set tmp_list = [] %}
     {% for item in list_of_usernames %}
-        <p hidden>{{ tmp_list.append(item) }}</p>
+        <!-- cannot add usernames that are none(friend creation usernames) because it breaks the js function -->
+        {% if item is not none %}
+            <p hidden>{{ tmp_list.append(item) }}</p>
+        {% endif %}
     {% endfor %}
     <p>USERNAMES ARE PERMANENT, SO CHOOSE WISELY.</p>
+    <h4 id="warning"></h4>
     <div class="form-group">
         <label for="username">User Name:</label>
         <input
@@ -96,6 +104,7 @@ the user's home page -->
         />
     </div>
     <p>PASSWORD MUST BE AT LEAST 7 CHARACTERS</p>
+    <p id="password_warning"></p>
     <div class="form-group">
         <label for="password1">Password:</label>
         <input
@@ -104,6 +113,7 @@ the user's home page -->
                 id="password1"
                 name="password1"
                 placeholder="ENTER PASSWORD"
+                onkeyup="password_check(document.getElementById(id).value, document.getElementById('password2').value, id)"
         />
     </div>
     <div class="form-group">
@@ -114,6 +124,7 @@ the user's home page -->
                 id="password2"
                 name="password2"
                 placeholder="CONFIRM PASSWORD"
+                onkeyup="password_check(document.getElementById('password1').value, document.getElementById(id).value, id)"
         />
     </div>
     <lable for="file"><b>Profile Picture:</b></lable>

@@ -56,6 +56,9 @@
 <button type="button" class="collapsible">Friends</button>
 <div class="content">
     <h2 align="center">Friends</h2>
+    <input id="filter_friends" type="text" class="form-control" placeholder="SEARCH FRIENDS">
+    <br />
+    <div id="user_friends">
     {% for user_friend in friends_of_friend %}
         <!-- friend_color variable is set to #d9ead3 because that is light green and indicates user is friends with them -->
         {% if user_friend.id in user.friends_list %}
@@ -65,17 +68,19 @@
         {% else %}
             {% set friend_color = 'lightgrey' %}
         {% endif %}
+        <div class="filter_users">
         <div class="groove" align="left" style="background-color: {{ friend_color }};">
             <div class="image" style="float: left;">
                 <img class="img-responsive" src="{{ url_for('features.send_image', filename=user_friend.profile_picture) }}" width="150" height="150">
             </div>
             <div class="text1" style="float: left;">
-                <p>Name: {{ user_friend.first_name }}
+                <p>{% set tmp_friend_name = user_friend.first_name %}
                 <!-- If user has no middle name then don't show this-->
                 {% if user_friend.middle_name %}
-                    {{ user_friend.middle_name }}
+                    {% set tmp_friend_name = tmp_friend_name + ' ' + user_friend.middle_name %}
                 {% endif %}
-                {{ user_friend.last_name }}</p>
+                    {% set tmp_friend_name = tmp_friend_name + ' ' + user_friend.last_name %}
+                {{ tmp_friend_name }}</p>
                 <!-- first case: add friend button doesn't show up for user's own profile -->
                 <!-- second case: add friend button doesn't show up if user is already friends with another user -->
                 <!-- third case: add friend button doesn't show up for other user's friend creations -->
@@ -93,8 +98,10 @@
             </div>
             <p style="clear:both"></p>
         </div>
+        </div>
         <br />
     {% endfor %}
+    </div>
 </div>
 {% endif %}
 {% if friend.posts|length != 0 %}

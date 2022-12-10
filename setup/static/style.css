@@ -1,29 +1,25 @@
-
+/* for color of the navbar*/
 .navbar-dark {
     background:#0A4859;
-}
-
-* {
-  box-sizing: border-box;
 }
 /* Create two equal columns that floats next to each other */
 .column {
   float: left;
   padding: 10px;
 }
-
 /* Clear floats after the columns */
 .row:after {
   content: "";
   display: table;
   clear: both;
 }
+/* used for the time stamp and post privacy */
 .text1 {
     font-size: 20px;
     padding-left: 40px;
 }
 
-
+/* used for formatting user profiles in their home page(the box with their profile picture and info) */
 .groove {
     background-color: #E2FFFF;
     border-style: groove;
@@ -32,8 +28,8 @@
     padding-bottom: 15px;
     padding-right: 40px;
 }
-
-#myInput {
+/* css for search bar in search friend page */
+#searchBar {
     border: 1px solid #ddd;
     box-sizing: border-box;
     background-position: 14px 12px;
@@ -41,7 +37,7 @@
     font-size: 16px;
     padding: 12px 15px 10px 25px;
 }
-
+/* this is used for almost all button formatting */
 .btn-search {
     background-color: #04AA6D;
     color: white;
@@ -50,11 +46,11 @@
     border: none;
     cursor: pointer;
 }
-
+/* hover effect for buttons */
 .btn-search:hover, .btn-search:focus {
     background-color: #0A4859;
 }
-
+/* this is used to format friend requests sent to users */
 .to_user {
     background-color: #fce5cd;
     border-style: groove;
@@ -62,7 +58,7 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
-
+/* this is used to format friend requests sent by the user(pending friend requests) */
 .from_user {
     background-color: #d9d2e9;
     border-style: groove;
@@ -70,7 +66,6 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
-
 /* for friends with accounts*/
 .friends {
     background-color: #d9ead3;
@@ -79,7 +74,6 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
-
 /* for friends created by user*/
 .friend_creation {
     background-color: #ceec8a;
@@ -88,29 +82,25 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
-
+/* adds border around images */
 .image {
     border-style: inset;
 }
-
+/* format for a user's bio found on the home page(profile box) */
 .bio {
     padding: 20px;
     border-style: inset;
     background-color: white;
 }
-
+/* displays better */
 * {box-sizing: border-box}
 body {font-family: Verdana, sans-serif; margin:0}
-.mySlides {display: none}
-img {vertical-align: middle;}
-
 /* Slideshow container */
 .slideshow-container {
     max-width: 1000px;
     position: relative;
     margin: auto;
 }
-
 /* Next & previous buttons
 .prev, .next {
     cursor: pointer;
@@ -126,18 +116,15 @@ img {vertical-align: middle;}
     border-radius: 0 3px 3px 0;
     user-select: none;
 }*/
-
 /* Position the "next button" to the right
 .next {
     right: 0;
     border-radius: 3px 0 0 3px;
 }*/
-
 /* On hover, add a black background color with a little bit see-through */
 .prev:hover, .next:hover {
     background-color: rgba(0,0,0,0.8);
 }
-
 /* Caption text */
 .text3 {
     float: left;
@@ -146,7 +133,6 @@ img {vertical-align: middle;}
     padding: 20px;
     font-size: 20px;
 }
-
 /* Number text (1/3 etc) */
 .numbertext {
     color: #f2f2f2;
@@ -155,7 +141,6 @@ img {vertical-align: middle;}
     position: absolute;
     top: 0;
 }
-
 /* The dots/bullets/indicators */
 .dot {
     cursor: pointer;
@@ -167,11 +152,11 @@ img {vertical-align: middle;}
     display: inline-block;
     transition: background-color 0.6s ease;
 }
-
+/* give hover effect to dots */
 .active, .dot:hover {
     background-color: #0A4859;
 }
-
+/* for the purple collapsible sections on the home pages */
 .collapsible {
   background-color: #7028FF;
   color: white;
@@ -183,31 +168,14 @@ img {vertical-align: middle;}
   outline: none;
   font-size: 15px;
 }
-
+/* hover effect over thos purple sections */
 .active, .collapsible:hover {
   background-color: #9A67FF;
 }
-
+/* inside the purple sections has a pinkish background */
 .content {
   padding: 0 18px;
   display: none;
   overflow: hidden;
   background-color: #F3EDFF;
-}
-
-.header {
-  display: flex;
-}
-
-.header p {
-  flex: 1;
-  font-weight: bold;
-}
-
-.results {
-  display: flex;
-}
-
-.results p {
-  flex: 1;
 }

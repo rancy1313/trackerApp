@@ -28,10 +28,10 @@
 <button type="button" class="collapsible">Friends</button>
 <div class="content">
     <br />
+    <h2 align="center">Friends</h2>
     <input id="filter_friends" type="text" class="form-control" placeholder="SEARCH FRIENDS">
+    <br />
     <div id="user_friends">
-        <!--<div class="user_friends"> delete this and move stuff back-->
-            <h2 align="center">Friends</h2>
             {% for friend in list_of_user_friends %}
                 <!-- friends created by the user will show up differently in their friend list, so they are easier to distinguish
                     from other users. So far they just have two different shades of green-->
