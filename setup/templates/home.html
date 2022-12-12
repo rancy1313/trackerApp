@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% block title%}Home{% endblock%}
 {% block content %}
-
+<!-- the user home page displays a profile box with all their info minus(password/email). This page is the main page for
+     a user because they can view their friends, posts, and posts that friends have tagged them in. They have the
+     feature to sort through their friends by name. They can also view their friends profiles from their friends list.
+     They can view if they have any friend requests on this page. Pending friend request from the user will show up
+     purple, and the user can cancel them. Friend requests to the user are orange, and the user can decline or accept
+     the friend request. Also, the user can view that user's profile from the request. -->
 <div class="groove">
     <div class="row">
         <div class="column">
-            <div class="image" style="float: left; width: 20%;">
+            <!--<div class="image" style="float: left; width: 20%;">-->
+            <div class="image crop" style="float: left; width: 20%;">
                 <img class="img-responsive" src="{{ url_for('features.send_image', filename=user.profile_picture) }}" style="width: 100%;">
             </div>
             <div class="text1" style="float: left;">

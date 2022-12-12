@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block title%}Search Friend{% endblock%}
 {% block content %}
-
+<!-- The user can add friends from this page. First, they will have to search another user by inputting that user's
+     username searching. If any users are found with that username, then they will be displayed on this page for the
+     user to send them a friend request or to view their profile. If no users are found with the inputted username,
+     then an error message is displayed. -->
 <form class="text1" method="POST">
     <p>Enter your Friend's username</p>
     <input  type="text"
