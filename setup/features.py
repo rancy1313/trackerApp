@@ -550,7 +550,7 @@ def filter_posts(user_id):
             message = 'No posts found with keyword: ' + key_word + '.'
             flash(message, category="error")
         # if tmp_filtered_friends does not zero, then that means there is a friend that has not been tagged in a post
-        elif len(tmp_filtered_friends) != 0:
+        elif tmp_filtered_friends[0] != '':
             # second error is that no posts were found with the friends the user was trying to find
             message = 'No posts found with: '
             for user in tmp_filtered_friends:

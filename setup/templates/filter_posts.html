@@ -72,12 +72,19 @@
         {% endfor %}
     </b>
 {% endif %}
-
+<!-- if filtered posts empty then no posts will be shown -->
 {% for post in filtered_posts %}
     {% if (post.post_privacy == 'Only You') and (tmp_user == user) or (post.post_privacy != 'Only You') %}
     <div class="groove" style="background-color: {{ post.color }}">
         <div class="row">
-            <div class="column">
+            {% if post.post_images|length == 0 %}
+                {% set tmp_text_width = '100%' %}
+                {% set tmp_image_width = '0%' %}
+            {% else %}
+                {% set tmp_text_width = '70%' %}
+                {% set tmp_image_width = '30%' %}
+            {% endif %}
+            <div class="column" style="width: {{ tmp_image_width }}">
                 <!-- this div is for formatting the dots next to the image -->
                 <div style="float: left;">
                     <!-- this will separate the dots next to each post's images -->
@@ -107,9 +114,9 @@
                     <!--<a class="prev" onclick="plusSlides({{ loop.index|safe }}, -1, {{ post.id|safe }})">❮</a>-->
                 </div>
             </div>
-            <div class="column">
+            <div class="column" style="width: {{ tmp_text_width }}">
                 <!-- this div is for formatting the post's text -->
-                <div class="text3">
+                <div class="noteBook">
                     <b>{{ post.title }}</b>
                     <p>{{ post.text|safe }}</p>
                     <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
