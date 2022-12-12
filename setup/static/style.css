@@ -179,3 +179,16 @@ body {font-family: Verdana, sans-serif; margin:0}
   overflow: hidden;
   background-color: #F3EDFF;
 }
+
+.noteBook {
+    font-size: 20px;
+    border-style: ridge;
+    padding: 60px;
+    padding-left: 100px;
+    padding-top: 20px;
+    background-color: #fff;
+    background-image:
+    linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+    linear-gradient(#eee .1em, transparent .1em);
+    background-size: 100% 1.2em;
+}

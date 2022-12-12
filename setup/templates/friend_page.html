@@ -31,21 +31,23 @@
             <form action="{{ url_for('features.remove_friend', friend_id=friend.id) }}" method="POST">
                 <button style="float: left;" type="submit" class="btn-search">Remove Friend</button>
             </form>
-            <p style="float: left; padding: 25px;"> </p>
+            <p style="float: left; padding: 25px;"></p>
             {% if friend.email is none %}
                 <form action="{{ url_for('features.edit_profile', user_id=friend.id) }}" method="GET">
                     <button style="float: left;" type="submit" class="btn-search">Edit Friend</button>
                 </form>
+                <p style="float: left; padding: 25px;"></p>
             {% endif %}
-            <p style="clear:both"></p>
         {% else %}
             <form action="{{ url_for('features.add_friend_from_friend', user_id=friend.id, curr_page_user_id=friend.id) }}" method="POST">
                 <button type="submit" class="btn-search">Add Friend</button>
             </form>
+            <p style="float: left; padding: 10px;"></p>
         {% endif %}
+        <p style="clear:both"></p>
     </div>
     {% if friend.username is not none %}
-        <div class="text1" style="float: left;">
+        <div class="text1" style="float: left; width: 100%;">
             <p class="bio">{{ friend.bio }}</p>
         </div>
     {% endif %}
@@ -120,7 +122,14 @@
                 or post.post_privacy == "Everyone") %}
             <div class="groove" style="background-color: {{ post.color }}">
                 <div class="row">
-                    <div class="column">
+                    {% if post.post_images|length == 0 %}
+                        {% set tmp_text_width = '100%' %}
+                        {% set tmp_image_width = '0%' %}
+                    {% else %}
+                        {% set tmp_text_width = '70%' %}
+                        {% set tmp_image_width = '30%' %}
+                    {% endif %}
+                    <div class="column" style="width: {{ tmp_image_width }};">
                         <!-- this div is for formatting the dots next to the image -->
                         <div style="float: left;">
                             <!-- this will separate the dots next to each post's images -->
@@ -150,9 +159,9 @@
                             <!--<a class="prev" onclick="plusSlides({{ loop.index|safe }}, -1, {{ post.id|safe }})">❮</a>-->
                         </div>
                     </div>
-                    <div class="column">
+                    <div class="column" style="width: {{ tmp_text_width }};">
                         <!-- this div is for formatting the post's text -->
-                        <div class="text3" style="float: left;">
+                        <div class="noteBook" style="float: left;">
                             <b>{{ post.title }}</b>
                             <p>{{ post.text }}</p>
                             <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
@@ -248,7 +257,14 @@
                 {% endif %}
                 <div class="groove" style="background-color: {{ post.color }}">
                     <div class="row">
-                        <div class="column">
+                        {% if post.post_images|length == 0 %}
+                            {% set tmp_text_width = '100%' %}
+                            {% set tmp_image_width = '0%' %}
+                        {% else %}
+                            {% set tmp_text_width = '70%' %}
+                            {% set tmp_image_width = '30%' %}
+                        {% endif %}
+                        <div class="column" style="width: {{ tmp_image_width }};">
                             <!-- this div is for formatting the dots next to the image -->
                             <div style="float: left;">
                                 <!-- this will separate the dots next to each post's images -->
@@ -277,9 +293,9 @@
                                 <!--<a class="prev" onclick="plusSlides({{ loop.index|safe }}, -1, {{ post.id|safe }})">❮</a>-->
                             </div>
                         </div>
-                        <div class="column">
+                        <div class="column" style="width: {{ tmp_text_width }};">
                             <!-- this div is for formatting the post's text -->
-                            <div class="text3" style="float: left;">
+                            <div class="noteBook" style="float: left;">
                                 <b>{{ post.title }}</b>
                                 <p>{{ post.text }}</p>
                                 <!-- if there are no tagged friend then the length is zero, so != 0 then display tagged friends -->
@@ -308,43 +324,41 @@
                                         {% endfor %}
                                     </p>
                                 {% endif %}
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div styel="float: left;">
-                                <div class="image" style="float: left;">
-                                    <img src="{{ url_for('features.send_image', filename=tmp_friend.profile_picture) }}" width="85" height="85">
-                                </div>
-                                <div class="text1" style="float: left;">
-                                    <p>Post by: {{ tmp_friend.first_name }}
-                                        <!-- If user has no middle name then don't show this-->
-                                        {% if tmp_friend.middle_name %}
-                                            {{ tmp_friend.middle_name }}
+                                <div styel="float: left;">
+                                    <div class="image" style="float: left;">
+                                        <img src="{{ url_for('features.send_image', filename=tmp_friend.profile_picture) }}" width="85" height="85">
+                                    </div>
+                                    <div class="text1" style="float: left;">
+                                        <p>Post by: {{ tmp_friend.first_name }}
+                                            <!-- If user has no middle name then don't show this-->
+                                            {% if tmp_friend.middle_name %}
+                                                {{ tmp_friend.middle_name }}
+                                            {% endif %}
+                                                {{ tmp_friend.last_name }}
+                                        </p>
+                                        {% if tmp_friend.id != user.id %}
+                                            <form action="{{ url_for('features.view_friend_profile', friend_id=tmp_friend.id) }}" method="POST">
+                                                <button type="submit" class="btn-search">View Friend Profile</button>
+                                            </form>
+                                        {% else %}
+                                            <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
+                                                <button style="float: left;" class="btn-search" type="submit">Edit</button>
+                                            </form>
+                                            <p style="float: left; padding: 10px;"></p>
+                                            <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
+                                                <button style="float: left;" class="btn-search" type="submit">Delete</button>
+                                            </form>
                                         {% endif %}
-                                            {{ tmp_friend.last_name }}
-                                    </p>
-                                    {% if tmp_friend.id != user.id %}
-                                        <form action="{{ url_for('features.view_friend_profile', friend_id=tmp_friend.id) }}" method="POST">
-                                            <button type="submit" class="btn-search">View Friend Profile</button>
-                                        </form>
-                                    {% else %}
-                                        <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
-                                            <button style="float: left;" class="btn-search" type="submit">Edit</button>
-                                        </form>
-                                        <p style="float: left; padding: 10px;"></p>
-                                        <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
-                                            <button style="float: left;" class="btn-search" type="submit">Delete</button>
-                                        </form>
-                                    {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text1">
+                                    <p align="right">Who can see post: <i>{{ post.post_privacy }}</i></p>
+                                    <!-- will cut off the seconds -->
+                                    {% set tmp_time = (post.date|string)[:16] %}
+                                    <p align="right">{{ tmp_time }}</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="text1">
-                        <p align="right">Who can see post: <i>{{ post.post_privacy }}</i></p>
-                        <!-- will cut off the seconds -->
-                        {% set tmp_time = (post.date|string)[:16] %}
-                        <p align="right">{{ tmp_time }}</p>
                     </div>
                 </div>
                 <br />
