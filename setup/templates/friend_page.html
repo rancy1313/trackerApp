@@ -31,7 +31,7 @@
         <div class="row" style="width: 100%;">
             <div class="column">
                 <form action="{{ url_for('features.remove_friend', friend_id=friend.id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-search">Remove Friend</button>
+                    <button style="float: left;" type="submit" class="btn-remove-friend">Remove Friend</button>
                 </form>
             </div>
             <p style="float: left; padding: 15px;"></p>
@@ -100,7 +100,7 @@
                 {% endif %}
                 {% if (user_friend.id != user.id) and (user_friend.username is not none) %}
                     <form action="{{ url_for('features.view_friend_profile', friend_id=user_friend.id) }}" method="POST">
-                        <button type="submit" class="btn-search">View Friend Profile</button>
+                        <button type="submit" class="btn-view-profile">View Friend Profile</button>
                     </form>
                 {% endif %}
             </div>

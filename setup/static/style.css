@@ -37,7 +37,7 @@
     font-size: 16px;
     padding: 12px 15px 10px 25px;
 }
-/* this is used for almost all button formatting */
+/* this is used for 'search' button formatting */
 .btn-search {
     background-color: #04AA6D;
     color: white;
@@ -49,6 +49,32 @@
 /* hover effect for buttons */
 .btn-search:hover, .btn-search:focus {
     background-color: #0A4859;
+}
+/* this is used for 'remove friend' button formatting */
+.btn-remove-friend {
+    background-color: #FA8072;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+/* hover effect for buttons */
+.btn-remove-friend:hover, .btn-remove-friend:focus {
+    background-color: #CD5C5C;
+}
+/* this is used for 'view profile' button formatting */
+.btn-view-profile {
+    background-color: #9d60e6;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+/* hover effect for buttons */
+.btn-view-profile:hover, .btn-view-profile:focus {
+    background-color: #691fc1;
 }
 /* this is used to format friend requests sent to users */
 .to_user {

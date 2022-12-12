@@ -142,11 +142,11 @@
                         posts that d not belong to thm -->
                     {% if tmp_user == user %}
                         <form action="{{ url_for('features.edit_post', post_id=post.id) }}" method="GET">
-                            <button style="float: left;" class="btn-search" type="submit">Edit</button>
+                            <button style="float: left;" class="btn-search" type="submit">✎ Edit</button>
                         </form>
                         <p style="float: left; padding: 10px;"></p>
                         <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
-                            <button style="float: left;" class="btn-search" type="submit">Delete</button>
+                            <button style="float: left;" class="btn-remove-friend" type="submit">🗑️ Delete</button>
                         </form>
                     {% endif %}
                 </div>

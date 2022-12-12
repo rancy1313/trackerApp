@@ -70,7 +70,7 @@
                                     {{ tmp_friend_name }}
                                 </p>
                                 <form action="{{ url_for('features.view_friend_profile', friend_id=friend.id) }}" method="POST">
-                                    <button type="submit" class="btn-search">View Friend Profile</button>
+                                    <button type="submit" class="btn-view-profile">View Friend Profile</button>
                                 </form>
                             </div>
                         </div>
@@ -93,16 +93,16 @@
             <div class="text1" style="float: left; width: 70%;">
                 <p>{{ request.sender_name }}</p>
                 <p>{{ request.date }}</p>
-                <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-search">Decline</button>
+                <form action="{{ url_for('features.accept_friend_request', request_id=request.id) }}" method="POST">
+                    <button style="float: left;" type="submit" class="btn-search">❤ Accept</button>
                 </form>
                 <p style="float: left; padding: 10px;"></p>
-                <form action="{{ url_for('features.accept_friend_request', request_id=request.id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-search">Accept</button>
+                <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
+                    <button style="float: left;" type="submit" class="btn-remove-friend">💔 Decline</button>
                 </form>
                 <p style="float: left; padding: 10px;"></p>
                 <form action="{{ url_for('features.view_friend_profile', friend_id=request.request_from_user_id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-search">View Profile</button>
+                    <button style="float: left;" type="submit" class="btn-view-profile">View Profile</button>
                 </form>
             </div>
             <p style="clear:both"></p>
@@ -200,7 +200,7 @@
                         </form>
                         <p style="float: left; padding: 10px;"></p>
                         <form action="{{ url_for('features.delete_post', post_id=post.id) }}" method="POST">
-                            <button style="float: left;" class="btn-search" type="submit">🗑️ Delete</button>
+                            <button style="float: left;" class="btn-remove-friend" type="submit">🗑️ Delete</button>
                         </form>
                     </div>
                 </div>
@@ -331,7 +331,7 @@
                                         {{ friend.last_name }}
                                 </p>
                                 <form action="{{ url_for('features.view_friend_profile', friend_id=friend.id) }}" method="POST">
-                                    <button type="submit" class="btn-search">View Friend Profile</button>
+                                    <button type="submit" class="btn-view-profile">View Profile</button>
                                 </form>
                             </div>
                             <div class="text1">
