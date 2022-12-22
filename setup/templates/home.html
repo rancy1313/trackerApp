@@ -94,11 +94,11 @@
                 <p>{{ request.sender_name }}</p>
                 <p>{{ request.date }}</p>
                 <form action="{{ url_for('features.accept_friend_request', request_id=request.id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-search">❤ Accept</button>
+                    <button style="float: left;" type="submit" class="btn-search">&#x2661; Accept</button>
                 </form>
                 <p style="float: left; padding: 10px;"></p>
                 <form action="{{ url_for('features.cancel_friend_request', request_id=request.id) }}" method="POST">
-                    <button style="float: left;" type="submit" class="btn-remove-friend">💔 Decline</button>
+                    <button style="float: left;" type="submit" class="btn-remove-friend">&#x1F494; Decline</button>
                 </form>
                 <p style="float: left; padding: 10px;"></p>
                 <form action="{{ url_for('features.view_friend_profile', friend_id=request.request_from_user_id) }}" method="POST">
@@ -107,6 +107,7 @@
             </div>
             <p style="clear:both"></p>
         </div>
+        <br />
     {% endfor %}
     {% for request in user.friend_requests %}
         <div class="from_user">
@@ -123,6 +124,7 @@
             </div>
             <p style="clear:both"></p>
         </div>
+        <br />
     {% endfor %}
 </div>
 <p style="float: left; padding: 10px;"></p>

@@ -37,12 +37,15 @@
                     name="gender"
                     onkeyup="lengthCheck(document.getElementById(id).value, id)">{{ user_being_edited.gender }}</textarea>
         <br />
-        <label for="bio">Bio: {{ user_being_edited.bio }}</label>
-        <textarea   type="bio"
-                    class="form-control"
-                    id="bio"
-                    name="bio">{{ user_being_edited.bio }}</textarea>
-        <br />
+        <!-- can't add bio to friend creations -->
+        {% if user_being_edited.username %}
+            <label for="bio">Bio: {{ user_being_edited.bio }}</label>
+            <textarea   type="bio"
+                        class="form-control"
+                        id="bio"
+                        name="bio">{{ user_being_edited.bio }}</textarea>
+            <br />
+        {% endif %}
         <b>Previous Profile Picture:</b>
         <img class="img-responsive" src="{{ url_for('features.send_image', filename=user_being_edited.profile_picture) }}" width="150" >
         <br />
